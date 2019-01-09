@@ -151,7 +151,7 @@ payment_pattern STRING COMMENT '支付方式：支付宝，微信，小程序，
 order_no STRING COMMENT '订单编号',
 amount decimal(10,2) COMMENT '实际支付金额',
 origin_amount decimal(10,2) COMMENT '原价',
-inputtime string comment '订单日期'
+inputtime int comment '订单日期'
 )
 COMMENT 'CI order2es'
 ROW FORMAT DELIMITED
