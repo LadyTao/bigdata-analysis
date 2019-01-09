@@ -1,16 +1,17 @@
 use dbsync;
-insert overwrite table mart.ci_order
+insert overwrite  table mart.ci_order
 select
 t1.id,
 t1.uid,
 case when t1.pay_origin in ('3','4') then '神剪手移动端'
      when t1.pay_origin in ('1','2') then '神剪手'
 else '其他' end as productLine,
-t3.title as channel,
+case when t3.title is null then 'missing'
+		 else t3.title  end as channel,
+-- t3.title as channel,
 case when t1.open_type ='month' then '月付'
      when t1.open_type ='year' then '年付'
 else '其他' end as subcribe_type,
-'0' as product_version,
 case when t1.`type`='2'  then '高级会员'
      when t1.`type`='3'  then 'VIP至尊会员'
      when t1.`type`='4'  then '企业会员'
@@ -28,6 +29,7 @@ else '其他' end as payment_pattern,
 t1.order_no,
 t1.amount,
 t1.origin_amount,
+-- from_unixtime(t1.inputtime) as inputtime0,
 from_unixtime(t1.inputtime+28800) as inputtime
 from
 (select
