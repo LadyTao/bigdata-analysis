@@ -14,7 +14,7 @@ else '其他' end as subcribe_type,
 case when t1.`type`='2'  then '高级会员'
      when t1.`type`='3'  then 'VIP至尊会员'
      when t1.`type`='4'  then '企业会员'
-else '其他'  end as member_classs,
+else '其他'  end as member_class,
 case when t1.pay_origin in ('1','2') then 'Windows'
      when t1.pay_origin ='3' then 'IOS'
      when t1.pay_origin = '4' then 'Android'
@@ -28,7 +28,7 @@ else '其他' end as payment_pattern,
 t1.order_no,
 t1.amount,
 t1.origin_amount,
-t1.inputtime
+from_unixtime(t1.inputtime+28800) as inputtime
 from
 (select
 id,
