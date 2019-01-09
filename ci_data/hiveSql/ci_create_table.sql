@@ -137,5 +137,30 @@ STORED AS TEXTFILE
 LOCATION 'hdfs://hdp-0.local:8020/path/dbsync/shencut_store_wx_member_interest_tags';
 
 
+-- create the ci_order table for ci's order board
+use mart;
+create table if not exists ci_order (
+id int comment 'id',
+uid int comment 'user id ',
+productLine STRING COMMENT '产品线，',
+channel STRING COMMENT '渠道：见后台推广渠道',
+subcribe_type  STRING COMMENT '月付，年付' ,
+product_version STRING COMMENT '产品版本,2.x,3.x,暂时没有版本信息，统一置为：0.0X',
+member_classs STRING COMMENT '高级会员，VIP至尊会员，企业会员',
+os_platform STRING COMMENT 'Windows， Mac,Andriod,IOS',
+payment_pattern STRING COMMENT '支付方式：支付宝，微信，小程序，IOS支付，无需支付',
+order_no STRING COMMENT '订单编号',
+amount decimal(10,2) COMMENT '实际支付金额',
+origin_amount decimal(10,2) COMMENT '原价',
+inputtime int comment '订单日期'
+)
+COMMENT 'CI order2es'
+ROW FORMAT DELIMITED
+FIELDS TERMINATED BY '\001'
+LINES TERMINATED BY '\n'
+STORED AS TEXTFILE
+LOCATION 'hdfs://hdp-0.local:8020/path/mart/ci_order';
+
+
 
 
