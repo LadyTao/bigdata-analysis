@@ -29,8 +29,8 @@ else '其他' end as payment_pattern,
 t1.order_no,
 t1.amount,
 t1.origin_amount,
--- from_unixtime(t1.inputtime) as inputtime0,
-from_unixtime(t1.inputtime+28800) as inputtime
+t1.inputtime
+--from_unixtime(t1.inputtime+28800) as inputtime
 from
 (select
 id,
