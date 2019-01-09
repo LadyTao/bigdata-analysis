@@ -145,14 +145,13 @@ uid int comment 'user id ',
 productLine STRING COMMENT '产品线，',
 channel STRING COMMENT '渠道：见后台推广渠道',
 subcribe_type  STRING COMMENT '月付，年付' ,
-product_version STRING COMMENT '产品版本,2.x,3.x,暂时没有版本信息，统一置为：0.0X',
 member_classs STRING COMMENT '高级会员，VIP至尊会员，企业会员',
-os_platform STRING COMMENT 'Windows， Mac,Andriod,IOS',
+os_platform STRING COMMENT 'Windows,Andriod,IOS',
 payment_pattern STRING COMMENT '支付方式：支付宝，微信，小程序，IOS支付，无需支付',
 order_no STRING COMMENT '订单编号',
 amount decimal(10,2) COMMENT '实际支付金额',
 origin_amount decimal(10,2) COMMENT '原价',
-inputtime int comment '订单日期'
+inputtime string comment '订单日期'
 )
 COMMENT 'CI order2es'
 ROW FORMAT DELIMITED
