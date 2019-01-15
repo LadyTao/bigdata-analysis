@@ -1,5 +1,6 @@
 #!/bin/bash
 
+#  move the renew data from hive to mysql
 first_date="2019-01-11"
 expire=`date +"%Y-%m-%d"`
 end_date=`date -d "8 days"  +"%Y-%m-%d"`
