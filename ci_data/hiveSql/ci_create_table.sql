@@ -1,6 +1,6 @@
-use dbsync;
+
 -- store.wx_member
-CREATE TABLE IF NOT EXISTS shencut_store_wx_member(
+CREATE TABLE IF NOT EXISTS shencut_store_wx_member (
   id int  ,
   uid int COMMENT ' DEFAULT "0"  用户UID（账户系统）',
   vip_type string COMMENT '用户组（1：免费用户，2：高级用户，3：VIP用户，4：企业用户）',
@@ -31,10 +31,10 @@ LOCATION 'hdfs://hdp-0.local:8020/path/dbsync/shencut_store_wx_member';
 --map-column-hive  vip_type=STRING,status=STRING,reg_origin=STRING,industry=STRING
 
 -- 检查mysql中tinyint(1) 类型是否成功转化为string
-select distinct vip_type from dbsync.shencut_store_wx_member;
-select distinct status from dbsync.shencut_store_wx_member;
-select distinct reg_origin from dbsync.shencut_store_wx_member;
-select distinct industry from dbsync.shencut_store_wx_member;
+select distinct vip_type from dbsync.shencut_store_wx_member
+select distinct status from dbsync.shencut_store_wx_member
+select distinct reg_origin from dbsync.shencut_store_wx_member
+select distinct industry from dbsync.shencut_store_wx_member
 --用户UID 手机号  会员等级  注册时间  到期时间 订单次数  用户来源 推广渠道 行业 兴趣
 
 
@@ -68,9 +68,9 @@ LOCATION 'hdfs://hdp-0.local:8020/path/dbsync/shencut_store_wx_order';
 
 -- 检查mysql中tinyint(1) 类型是否成功转化为string
  --map-column-hive type=STRING,from=STRING,pay_origin=STRING,status=STRING,pay_type=STRING,open_vip_type=STRING
-select distinct pay_origin from dbsync.shencut_store_wx_order;
-select distinct type from dbsync.shencut_store_wx_order;
-select distinct from from dbsync.shencut_store_wx_order;
+select distinct pay_origin from dbsync.shencut_store_wx_order ;
+select distinct type from dbsync.shencut_store_wx_order ;
+select distinct from from dbsync.shencut_store_wx_order ;
 select distinct status from dbsync.shencut_store_wx_order ;
 select distinct pay_type from dbsync.shencut_store_wx_order ;
 select distinct open_vip_type from dbsync.shencut_store_wx_order ;
@@ -122,7 +122,6 @@ SELECT DISTINCT open_time from dbsync.shencut_store_wx_marketing_channel
 
 
 -- wx_member_interest_tags
-
 CREATE TABLE shencut_store_wx_member_interest_tags (
  id int,
  tag STRING COMMENT '标签',
@@ -136,30 +135,119 @@ LINES TERMINATED BY '\n'
 STORED AS TEXTFILE
 LOCATION 'hdfs://hdp-0.local:8020/path/dbsync/shencut_store_wx_member_interest_tags';
 
-
--- create the ci_order table for ci's order board
-use mart;
-create table if not exists ci_order (
-id int comment 'id',
-uid int comment 'user id ',
-productLine STRING COMMENT '产品线，',
-channel STRING COMMENT '渠道：见后台推广渠道',
-subcribe_type  STRING COMMENT '月付，年付' ,
-member_class STRING COMMENT '高级会员，VIP至尊会员，企业会员',
-os_platform STRING COMMENT 'Windows,Andriod,IOS',
-payment_pattern STRING COMMENT '支付方式：支付宝，微信，小程序，IOS支付，无需支付',
-order_no STRING COMMENT '订单编号',
-amount decimal(10,2) COMMENT '实际支付金额',
-origin_amount decimal(10,2) COMMENT '原价',
-inputtime int comment '订单日期'
+-- 到期用户和续费用户统计表(日)
+CREATE TABLE IF NOT EXISTS ci_member_renew_rate_day (
+  stat_date string  COMMENT '数据日期，到期日期',
+  channel string  COMMENT '用户推广渠道',
+  expire_time_type string   COMMENT '到期用户vip类型：month(月付),year(年付)',
+  expire_user_level string COMMENT '用户到期前的vip类型： 高级会员,VIP会员,企会员',
+  renew_time_type string COMMENT '续费时长类型： month(月付),year(年付)',
+  renew_user_level string  COMMENT '续费vip类型：高级会员,VIP会员,企会员',
+  expire_user int COMMENT '到期用户数',
+  renew_user int COMMENT '续费用户数'
 )
-COMMENT 'CI order2es'
+COMMENT '神剪手到期-续费统计表(日)'
+PARTITIONED BY(expire_date string)
 ROW FORMAT DELIMITED
 FIELDS TERMINATED BY '\001'
 LINES TERMINATED BY '\n'
 STORED AS TEXTFILE
-LOCATION 'hdfs://hdp-0.local:8020/path/mart/ci_order';
+LOCATION 'hdfs://hdp-0.local:8020/path/mart/ci_member_renew_rate_day';
+
+-- ci会员到期快照表
+CREATE TABLE IF NOT EXISTS ci_wx_member_expire_date (
+  id int  ,
+  uid int COMMENT ' DEFAULT "0"  用户UID（账户系统）',
+  vip_type string COMMENT '用户组（1：免费用户，2：高级用户，3：VIP用户，4：企业用户）',
+  endtime int   COMMENT '会员到期时间',
+  status string  COMMENT '1：正常；2：锁定',
+  base_info string  COMMENT '用户基础信息，由wondershareID返回过来的数据',
+  mobile string DEFAULT '' COMMENT '手机号码',
+  inputtime int comment '0',
+  updatetime int comment '0',
+  pay_mode string COMMENT '付费方式:day,year,month'
+)
+COMMENT '神剪手会员表每日会员状态表 store.wx_member'
+PARTITIONED BY(expireDate string)
+ROW FORMAT DELIMITED
+FIELDS TERMINATED BY '\001'
+LINES TERMINATED BY '\n'
+STORED AS TEXTFILE
+LOCATION 'hdfs://hdp-0.local:8020/path/dbsync/ci_wx_member_expire_date';
 
 
+-- '2019-01-09'
+insert into dbsync.ci_wx_member_expire_date partition(expireDate='2019-01-09')
+select id,uid,vip_type,endtime,status,base_info, mobile,inputtime,updatetime,pay_mode from dbsync.shencut_store_wx_member where from_unixtime(endtime,'yyyy-MM-dd')='2019-01-09';
+-- '2019-01-08'
+insert into dbsync.ci_wx_member_expire_date partition(expireDate='2019-01-08')
+select id,uid,vip_type,endtime,status,base_info, mobile,inputtime,updatetime,pay_mode from dbsync.shencut_store_wx_member where from_unixtime(endtime,'yyyy-MM-dd')='2019-01-08';
+-- '2019-01-07'
+insert into dbsync.ci_wx_member_expire_date partition(expireDate='2019-01-07')
+select id,uid,vip_type,endtime,status,base_info, mobile,inputtime,updatetime,pay_mode from dbsync.shencut_store_wx_member where from_unixtime(endtime,'yyyy-MM-dd')='2019-01-07';
+-- '2019-01-06'
+insert into dbsync.ci_wx_member_expire_date partition(expireDate='2019-01-06')
+select id,uid,vip_type,endtime,status,base_info, mobile,inputtime,updatetime,pay_mode from dbsync.shencut_store_wx_member where from_unixtime(endtime,'yyyy-MM-dd')='2019-01-06';
+-- '2019-01-05'
+insert into dbsync.ci_wx_member_expire_date partition(expireDate='2019-01-05')
+select id,uid,vip_type,endtime,status,base_info, mobile,inputtime,updatetime,pay_mode from dbsync.shencut_store_wx_member where from_unixtime(endtime,'yyyy-MM-dd')='2019-01-05';
+-- '2019-01-04'
+insert into dbsync.ci_wx_member_expire_date partition(expireDate='2019-01-04')
+select id,uid,vip_type,endtime,status,base_info, mobile,inputtime,updatetime,pay_mode from dbsync.shencut_store_wx_member where from_unixtime(endtime,'yyyy-MM-dd')='2019-01-04';
+-- '2019-01-03'
+insert into dbsync.ci_wx_member_expire_date partition(expireDate='2019-01-03')
+select id,uid,vip_type,endtime,status,base_info, mobile,inputtime,updatetime,pay_mode from dbsync.shencut_store_wx_member where from_unixtime(endtime,'yyyy-MM-dd')='2019-01-03';
+-- '2019-01-02'
+insert into dbsync.ci_wx_member_expire_date partition(expireDate='2019-01-02')
+select id,uid,vip_type,endtime,status,base_info, mobile,inputtime,updatetime,pay_mode from dbsync.shencut_store_wx_member where from_unixtime(endtime,'yyyy-MM-dd')='2019-01-02';
+-- '2019-01-01'
+insert into dbsync.ci_wx_member_expire_date partition(expireDate='2019-01-01')
+select id,uid,vip_type,endtime,status,base_info, mobile,inputtime,updatetime,pay_mode from dbsync.shencut_store_wx_member where from_unixtime(endtime,'yyyy-MM-dd')='2019-01-01';
+
+-- '2018-12-31'
+insert into dbsync.ci_wx_member_expire_date partition(expireDate='2018-12-31')
+select id,uid,vip_type,endtime,status,base_info, mobile,inputtime,updatetime,pay_mode from dbsync.shencut_store_wx_member where from_unixtime(endtime,'yyyy-MM-dd')='2018-12-31';
+-- '2018-12-30'
+insert into dbsync.ci_wx_member_expire_date partition(expireDate='2018-12-30')
+select id,uid,vip_type,endtime,status,base_info, mobile,inputtime,updatetime,pay_mode from dbsync.shencut_store_wx_member where from_unixtime(endtime,'yyyy-MM-dd')='2018-12-30';
+-- '2018-12-29'
+insert into dbsync.ci_wx_member_expire_date partition(expireDate='2018-12-29')
+select id,uid,vip_type,endtime,status,base_info, mobile,inputtime,updatetime,pay_mode from dbsync.shencut_store_wx_member where from_unixtime(endtime,'yyyy-MM-dd')='2018-12-29';
+-- '2018-12-28'
+insert into dbsync.ci_wx_member_expire_date partition(expireDate='2018-12-28')
+select id,uid,vip_type,endtime,status,base_info, mobile,inputtime,updatetime,pay_mode from dbsync.shencut_store_wx_member where from_unixtime(endtime,'yyyy-MM-dd')='2018-12-28';
 
 
+-- '2018-12-27'
+insert into dbsync.ci_wx_member_expire_date partition(expireDate='2018-12-27')
+select id,uid,vip_type,endtime,status,base_info, mobile,inputtime,updatetime,pay_mode from dbsync.shencut_store_wx_member where from_unixtime(endtime,'yyyy-MM-dd')='2018-12-27';
+-- '2018-12-26'
+insert into dbsync.ci_wx_member_expire_date partition(expireDate='2018-12-26')
+select id,uid,vip_type,endtime,status,base_info, mobile,inputtime,updatetime,pay_mode from dbsync.shencut_store_wx_member where from_unixtime(endtime,'yyyy-MM-dd')='2018-12-26';
+-- '2018-12-25'
+insert into dbsync.ci_wx_member_expire_date partition(expireDate='2018-12-25')
+select id,uid,vip_type,endtime,status,base_info, mobile,inputtime,updatetime,pay_mode from dbsync.shencut_store_wx_member where from_unixtime(endtime,'yyyy-MM-dd')='2018-12-25';
+-- '2018-12-24'
+insert into dbsync.ci_wx_member_expire_date partition(expireDate='2018-12-24')
+select id,uid,vip_type,endtime,status,base_info, mobile,inputtime,updatetime,pay_mode from dbsync.shencut_store_wx_member where from_unixtime(endtime,'yyyy-MM-dd')='2018-12-24';
+-- '2018-12-23'
+insert into dbsync.ci_wx_member_expire_date partition(expireDate='2018-12-23')
+select id,uid,vip_type,endtime,status,base_info, mobile,inputtime,updatetime,pay_mode from dbsync.shencut_store_wx_member where from_unixtime(endtime,'yyyy-MM-dd')='2018-12-23';
+-- '2018-12-22'
+insert into dbsync.ci_wx_member_expire_date partition(expireDate='2018-12-22')
+select id,uid,vip_type,endtime,status,base_info, mobile,inputtime,updatetime,pay_mode from dbsync.shencut_store_wx_member where from_unixtime(endtime,'yyyy-MM-dd')='2018-12-22';
+-- '2018-12-21'
+insert into dbsync.ci_wx_member_expire_date partition(expireDate='2018-12-21')
+select id,uid,vip_type,endtime,status,base_info, mobile,inputtime,updatetime,pay_mode from dbsync.shencut_store_wx_member where from_unixtime(endtime,'yyyy-MM-dd')='2018-12-21';
+-- '2018-12-20'
+insert into dbsync.ci_wx_member_expire_date partition(expireDate='2018-12-20')
+select id,uid,vip_type,endtime,status,base_info, mobile,inputtime,updatetime,pay_mode from dbsync.shencut_store_wx_member where from_unixtime(endtime,'yyyy-MM-dd')='2018-12-20';
+-- '2018-12-19'
+insert into dbsync.ci_wx_member_expire_date partition(expireDate='2018-12-19')
+select id,uid,vip_type,endtime,status,base_info, mobile,inputtime,updatetime,pay_mode from dbsync.shencut_store_wx_member where from_unixtime(endtime,'yyyy-MM-dd')='2018-12-19';
+-- '2018-12-18'
+insert into dbsync.ci_wx_member_expire_date partition(expireDate='2018-12-18')
+select id,uid,vip_type,endtime,status,base_info, mobile,inputtime,updatetime,pay_mode from dbsync.shencut_store_wx_member where from_unixtime(endtime,'yyyy-MM-dd')='2018-12-18';
+-- '2018-12-17'
+insert into dbsync.ci_wx_member_expire_date partition(expireDate='2018-12-17')
+select id,uid,vip_type,endtime,status,base_info, mobile,inputtime,updatetime,pay_mode from dbsync.shencut_store_wx_member where from_unixtime(endtime,'yyyy-MM-dd')='2018-12-17';
