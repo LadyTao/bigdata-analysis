@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# calculate the expire and renew users info  and insert the result to mart.ci_member_renew_rate_day in hive;
+
 first_date="2019-01-11"
 expire=`date +"%Y-%m-%d"`
 end_date=`date -d "8 days"  +"%Y-%m-%d"`
