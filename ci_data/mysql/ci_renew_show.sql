@@ -94,14 +94,52 @@ where expire_user_level=renew_user_level -- and channel in () ,expire_time_type 
 group by DATE_FORMAT(stat_date,'%Y-%m')
 
 -- 查询饼图
--- 总续费饼图 - 天
-select * from ci_member_renew_rate_day  where
 
--- 高级会员续费饼图 - 月
-select * from ci_member_renew_rate_day  where
+-- 月表统计
+--2019-12 会员变更的订阅类型分布；月付,年付在外圈，(会员类型：高级会员,VIP会员,企业会员)在内圈
+select
+DATE_FORMAT(stat_date,'%Y-%m') as stat_month,
+renew_time_type,
+renew_user_level,
+sum(renew_user)
+from
+ci_member_renew_rate_day
+where channel in ('百度推广','360推广') and expire_time_type ='月付' and DATE_FORMAT(stat_date,'%Y-%m') = '{month_var}'
+group by  DATE_FORMAT(stat_date,'%Y-%m'),renew_time_type,renew_user_level
 
--- 总续费饼图
-select * from ci_member_renew_rate_day  where
+--2019-12 会员变更的会员类型分布；月付,年付在内圈，(会员类型：高级会员,VIP会员,企业会员)在外圈
+select
+DATE_FORMAT(stat_date,'%Y-%m') as stat_month,
+renew_user_level,
+renew_time_type,
+sum(renew_user)
+from
+ci_member_renew_rate_day
+where channel in ('百度推广','360推广') and expire_time_type ='月付' and DATE_FORMAT(stat_date,'%Y-%m') = '2019-01'
+-- where 条件中channel ,expire_time_type 的参数跟"会员续费率(月)"查询参数一致，另外需要添加新的参数每条数据的日期如：'2019-01'
+group by  DATE_FORMAT(stat_date,'%Y-%m'),renew_user_level,renew_time_type
+-- 日表统计
+-- 2019-01-12 会员变更的订阅类型分布；月付,年付在外圈，(会员类型：高级会员,VIP会员,企业会员)在内圈
+select
+stat_date,
+renew_time_type,
+renew_user_level
+sum(renew_user)
+from
+ci_member_renew_rate_day
+where channel in ('百度推广','360推广') and expire_time_type ='月付' and stat_date ='{day_var}'
+-- where 条件中channel ,expire_time_type 的参数跟"会员续费率(日)"查询参数一致，另外需要添加新的参数每条数据的日期
+group by  stat_date,,renew_time_type,renew_user_level
 
--- 总续费饼图
-select * from ci_member_renew_rate_day  where
+
+--2019-01-12 会员变更的会员类型分布；月付,年付在内圈，(会员类型：高级会员,VIP会员,企业会员)在外圈
+select
+stat_date,
+renew_user_level,
+renew_time_type,
+sum(renew_user)
+from
+ci_member_renew_rate_day
+where channel in ('百度推广','360推广') and expire_time_type ='月付' and stat_date = '{day_var}'
+-- where 条件中channel ,expire_time_type 的参数跟"会员续费率(日)"查询参数一致，另外需要添加新的参数每条数据的日期
+group by  stat_date,renew_user_level,renew_time_type
