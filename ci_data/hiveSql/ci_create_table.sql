@@ -251,3 +251,27 @@ select id,uid,vip_type,endtime,status,base_info, mobile,inputtime,updatetime,pay
 -- '2018-12-17'
 insert into dbsync.ci_wx_member_expire_date partition(expireDate='2018-12-17')
 select id,uid,vip_type,endtime,status,base_info, mobile,inputtime,updatetime,pay_mode from dbsync.shencut_store_wx_member where from_unixtime(endtime,'yyyy-MM-dd')='2018-12-17';
+
+
+
+--mart.ci_order
+create table if not exists ci_order (
+id int comment 'id',
+uid int comment 'user id ',
+productLine STRING COMMENT '产品线，',
+channel STRING COMMENT '渠道：见后台推广渠道',
+subscribe_type  STRING COMMENT '月付，年付' ,
+member_class STRING COMMENT '高级会员，VIP至尊会员，企业会员',
+os_platform STRING COMMENT 'Windows,Andriod,IOS',
+payment_pattern STRING COMMENT '支付方式：支付宝，微信，小程序，IOS支付，无需支付',
+order_no STRING COMMENT '订单编号',
+amount decimal(10,2) COMMENT '实际支付金额',
+origin_amount decimal(10,2) COMMENT '原价',
+inputtime int comment '订单日期'
+)
+COMMENT 'CI order2es'
+ROW FORMAT DELIMITED
+FIELDS TERMINATED BY '\001'
+LINES TERMINATED BY '\n'
+STORED AS TEXTFILE
+LOCATION 'hdfs://hdp-0.local:8020/path/mart/ci_order';
