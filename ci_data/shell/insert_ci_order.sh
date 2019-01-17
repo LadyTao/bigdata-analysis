@@ -1,9 +1,8 @@
-
 #!/bin/bash
 
 #sudo su hdfs
 
-filePath=/home/hdfs//usr/local/bigdata/jobtaskh0/shelljob/ci_data/
+filePath=/usr/local/bigdata/jobtaskh0/shelljob/ci_data/
 
 
 
@@ -15,8 +14,8 @@ echo "begin to delete the old data in the mart db"
 echo "begin to insert the ci_order data into mart.ci_order"
 hive  -f $filePath"/ci_order.sql"
 echo "done"
-#Ö´ĞĞ³ÌĞò
+#æ‰§è¡Œç¨‹åº
 endtime=`date +'%Y-%m-%d %H:%M:%S'`
 start_seconds=$(date --date="$starttime" +%s);
 end_seconds=$(date --date="$endtime" +%s);
-echo "±¾´ÎÔËĞĞÊ±¼ä£º "$((end_seconds-start_seconds))"s"
+echo "æœ¬æ¬¡è¿è¡Œæ—¶é—´ï¼š "$((end_seconds-start_seconds))"s"
