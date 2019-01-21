@@ -31,7 +31,7 @@ endtime,
 spread_origin,
 -- pay_mode
 case when pay_mode='month' then '月付'
-     when pay_mode='month' then '年付'
+     when pay_mode='year' then '年付'
 else '其他'  end as pay_mode
 from ci_wx_member_expire_date where vip_type !='1' and pay_mode !='null' and  expireDate=date_sub('${hiveconf:expire}',7) and from_unixtime(endtime+28800,'yyyy-MM-dd')='${hiveconf:expire}'
 ) t1 -- 使用 ci_wx_member_expire_date where expireDate='2019-01-04'来获取用户到期时间为'2019-01-11'
