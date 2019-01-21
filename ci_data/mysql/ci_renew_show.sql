@@ -34,7 +34,6 @@ group by stat_date
 
 
 -- 会员续费率(月)
---会员续费率(天)
 select
 DATE_FORMAT(stat_date,'%Y-%m') as stat_month,
 sum(renew_user) as total_renew_user ,
@@ -114,6 +113,7 @@ group by  DATE_FORMAT(stat_date,'%Y-%m'),renew_time_type,renew_user_level
 
 
 -- expire_user_level {会员类型}'=可选：高级会员,VIP会员,企业会员
+-- 点击"总会员续费人数"进入 ，需要where条件中expire_user_level='高级会员,VIP会员,企业会员'
 -- 点击"高级会员续费人数"进入 ，需要where条件中expire_user_level='高级会员'
 -- 点击"VIP会员续费人数"进入 ，需要where条件中expire_user_level='VIP会员'
 -- 点击"企业会员续费人数"进入 ，需要where条件中expire_user_level='企业会员'
@@ -145,6 +145,7 @@ group by  stat_date,renew_time_type,renew_user_level
 
 
 -- expire_user_level {会员类型}'=可选：高级会员,VIP会员,企业会员
+-- 点击"总会员续费人数"进入 ，需要where条件中expire_user_level='高级会员,VIP会员,企业会员'
 -- 点击"高级会员续费人数"进入 ，需要where条件中expire_user_level='高级会员'
 -- 点击"VIP会员续费人数"进入 ，需要where条件中expire_user_level='VIP会员'
 -- 点击"企业会员续费人数"进入 ，需要where条件中expire_user_level='企业会员'
