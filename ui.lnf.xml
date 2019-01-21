@@ -1,5 +1,6 @@
 <application>
   <component name="UISettings">
     <option name="FONT_FACE" value="Microsoft YaHei" />
+    <option name="IDE_AA_TYPE" value="No antialiasing" />
   </component>
 </application>
