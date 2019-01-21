@@ -1,16 +1,19 @@
-# runjob insert wx_member expire data to dbsync.ci_wx_member_expire_date add by zhaopeng
+# runjob insert wx_member expire data to dbsync.ci_wx_member_expire_date add by zhaopeng  no:2
 10 0 * * * bash /usr/local/bigdata/jobtaskh0/shelljob/ci_data/import_expire_member_everyday.sh > /usr/local/bigdata/logs/shelljob/ci_data/member_expire.log 2>&1 &
 
-# load the shencut data store.wx_member,wx_order ,wx_member_recharge_record to hive dbsync add by zhaopeng
+# load the shencut data store.wx_member,wx_order ,wx_member_recharge_record to hive dbsync add by zhaopeng no:1
 0 0 * * * bash /usr/local/bigdata/jobtaskh0/shelljob/ci_data/import_ci_hive.sh > /usr/local/bigdata/logs/shelljob/ci_data/ci_load.log 2>&1 &
 
-# load the ci_order result to mart.ci_order add by zhaopeng
+# load the ci_order result to mart.ci_order add by zhaopeng   order:3
 0 1 * * * bash /usr/local/bigdata/jobtaskh0/shelljob/ci_data/insert_ci_order.sh  > /usr/local/bigdata/logs/shelljob/ci_data/insert_ci_order.log 2>&1 &
 
 
-# 每日到期用户数和续费用户数计算脚本执行命令：
+# 每日到期用户数和续费用户数计算脚本执行命令：  no:3
 
 bash /usr/local/bigdata/jobtaskh0/shelljob/ci_data/renew_day.sh  > /usr/local/bigdata/logs/shelljob/ci_data/renew_day.log 2>&1 &
 
-# 导入hive中每日的到期用户数和续费用户数到mysql数据库
+# 导入hive中每日的到期用户数和续费用户数到mysql数据库 no:4
 bash /usr/local/bigdata/jobtaskh0/shelljob/ci_data/renew_data_to_mysql.sh  > /usr/local/bigdata/logs/shelljob/ci_data/renew_data_to_mysql.log 2>&1 &
+
+
+# 执行顺序：no:1 -> no:2 -> no:3 -> no:4 -> no:5     no:1,no:2,no:3需要按crontab 设置的时间执行，no：4 no:5 可以选择集群空闲时间执行，确保8点之前有数据就可以。
