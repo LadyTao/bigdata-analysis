@@ -8,11 +8,11 @@
 0 1 * * * bash /usr/local/bigdata/jobtaskh0/shelljob/ci_data/insert_ci_order.sh  > /usr/local/bigdata/logs/shelljob/ci_data/insert_ci_order.log 2>&1 &
 
 
-# 每日到期用户数和续费用户数计算脚本执行命令：  no:3
+# 每日到期用户数和续费用户数计算脚本执行命令：  no:4
 
 bash /usr/local/bigdata/jobtaskh0/shelljob/ci_data/renew_day.sh  > /usr/local/bigdata/logs/shelljob/ci_data/renew_day.log 2>&1 &
 
-# 导入hive中每日的到期用户数和续费用户数到mysql数据库 no:4
+# 导入hive中每日的到期用户数和续费用户数到mysql数据库 no:5
 bash /usr/local/bigdata/jobtaskh0/shelljob/ci_data/renew_data_to_mysql.sh  > /usr/local/bigdata/logs/shelljob/ci_data/renew_data_to_mysql.log 2>&1 &
 
 
