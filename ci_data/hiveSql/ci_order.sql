@@ -11,7 +11,7 @@ case when t3.title is null then 'missing'
 -- t3.title as channel,
 case when t1.open_type ='month' then '月付'
      when t1.open_type ='year' then '年付'
-else '其他' end as subcribe_type,
+else '其他' end as subscribe_type,
 case when t1.`type`='2'  then '高级会员'
      when t1.`type`='3'  then 'VIP至尊会员'
      when t1.`type`='4'  then '企业会员'
