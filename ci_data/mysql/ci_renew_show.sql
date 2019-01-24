@@ -56,41 +56,43 @@ group by DATE_FORMAT(stat_date,'%Y-%m')
 -- 同类型会员续费率(天)
 select
 stat_date,
-sum(renew_user) as total_renew_user ,
+sum( case when expire_user_level=renew_user_level and expire_time_type=renew_time_type then renew_user else 0 end) as total_renew_user ,
 -- sum(expire_user) as total_expire_user,
 sum(renew_user)/sum(expire_user)  as total_rate,
-sum(case when expire_user_level="高级会员" then renew_user else 0 end ) as senior_renew_user ,
+sum(case when expire_user_level="高级会员"  and expire_user_level=renew_user_level and expire_time_type=renew_time_type then renew_user else 0 end ) as senior_renew_user ,
 -- sum(case when expire_user_level="高级会员" then expire_user else 0 end) as senior_expire_user,
-sum(case when expire_user_level="高级会员" then renew_user else 0 end )/sum(case when expire_user_level = "高级会员" then expire_user else 0 end)  as senior_renew_rate,
-sum(case when expire_user_level="VIP会员" then renew_user else 0 end ) as vip_renew_user ,
+sum(case when expire_user_level="高级会员"  and expire_user_level=renew_user_level and expire_time_type=renew_time_type then renew_user else 0 end )/sum(case when expire_user_level = "高级会员" then expire_user else 0 end)  as senior_renew_rate,
+sum(case when expire_user_level="VIP会员"  and expire_user_level=renew_user_level and expire_time_type=renew_time_type then renew_user else 0 end ) as vip_renew_user ,
 -- sum(case when expire_user_level="VIP会员" then expire_user else 0 end)  as vip_expire_user,
-sum(case when expire_user_level="VIP会员" then renew_user else 0 end )/sum(case when expire_user_level = "VIP会员" then expire_user else 0 end)  as vip_renew_rate,
-sum(case when expire_user_level="企业会员" then renew_user else 0 end ) as enter_renew_user ,
+sum(case when expire_user_level="VIP会员"  and expire_user_level=renew_user_level and expire_time_type=renew_time_type then renew_user else 0 end )/sum(case when expire_user_level = "VIP会员" then expire_user else 0 end)  as vip_renew_rate,
+sum(case when expire_user_level="企业会员"  and expire_user_level=renew_user_level and expire_time_type=renew_time_type then renew_user else 0 end ) as enter_renew_user ,
 -- sum(case when expire_user_level="企业会员" then expire_user else 0 end) as company_expire_user,
-sum(case when expire_user_level="企业会员" then renew_user else 0 end )/sum(case when expire_user_level = "企业会员" then expire_user else 0 end)  as enter_renew_rate
+sum(case when expire_user_level="企业会员"  and expire_user_level=renew_user_level and expire_time_type=renew_time_type then renew_user else 0 end )/sum(case when expire_user_level = "企业会员" then expire_user else 0 end)  as enter_renew_rate
 from ci_member_renew_rate_day
-where expire_user_level=renew_user_level
--- where channel in () ,expire_time_type = ''  -- 需要传入相关的channel,expire_time_type 信息
-group by stat_date
+-- where  channel in () ,expire_time_type = ''   -- 需要传入相关的channel,expire_time_type 信息
+group by stat_date;
 
---同类型会员续费率(月)
+
+
+-- 同类型会员续费率(月)
 select
 DATE_FORMAT(stat_date,'%Y-%m') as stat_month,
-sum(renew_user) as total_renew_user ,
+sum( case when expire_user_level=renew_user_level and expire_time_type=renew_time_type then renew_user else 0 end) as total_renew_user ,
 -- sum(expire_user) as total_expire_user,
 sum(renew_user)/sum(expire_user)  as total_rate,
-sum(case when expire_user_level="高级会员" then renew_user else 0 end ) as senior_renew_user ,
+sum(case when expire_user_level="高级会员"  and expire_user_level=renew_user_level and expire_time_type=renew_time_type then renew_user else 0 end ) as senior_renew_user ,
 -- sum(case when expire_user_level="高级会员" then expire_user else 0 end) as senior_expire_user,
-sum(case when expire_user_level="高级会员" then renew_user else 0 end )/sum(case when expire_user_level = "高级会员" then expire_user else 0 end)  as senior_renew_rate,
-sum(case when expire_user_level="VIP会员" then renew_user else 0 end ) as vip_renew_user ,
+sum(case when expire_user_level="高级会员"  and expire_user_level=renew_user_level and expire_time_type=renew_time_type then renew_user else 0 end )/sum(case when expire_user_level = "高级会员" then expire_user else 0 end)  as senior_renew_rate,
+sum(case when expire_user_level="VIP会员"  and expire_user_level=renew_user_level and expire_time_type=renew_time_type then renew_user else 0 end ) as vip_renew_user ,
 -- sum(case when expire_user_level="VIP会员" then expire_user else 0 end)  as vip_expire_user,
-sum(case when expire_user_level="VIP会员" then renew_user else 0 end )/sum(case when expire_user_level = "VIP会员" then expire_user else 0 end)  as vip_renew_rate,
-sum(case when expire_user_level="企业会员" then renew_user else 0 end ) as enter_renew_user ,
+sum(case when expire_user_level="VIP会员"  and expire_user_level=renew_user_level and expire_time_type=renew_time_type then renew_user else 0 end )/sum(case when expire_user_level = "VIP会员" then expire_user else 0 end)  as vip_renew_rate,
+sum(case when expire_user_level="企业会员"  and expire_user_level=renew_user_level and expire_time_type=renew_time_type then renew_user else 0 end ) as enter_renew_user ,
 -- sum(case when expire_user_level="企业会员" then expire_user else 0 end) as company_expire_user,
-sum(case when expire_user_level="企业会员" then renew_user else 0 end )/sum(case when expire_user_level = "企业会员" then expire_user else 0 end)  as enter_renew_rate
+sum(case when expire_user_level="企业会员"  and expire_user_level=renew_user_level and expire_time_type=renew_time_type then renew_user else 0 end )/sum(case when expire_user_level = "企业会员" then expire_user else 0 end)  as enter_renew_rate
 from ci_member_renew_rate_day
-where expire_user_level=renew_user_level -- and channel in () ,expire_time_type = ''   -- 需要传入相关的channel,expire_time_type 信息
+-- where  channel in () ,expire_time_type = ''   -- 需要传入相关的channel,expire_time_type 信息
 group by DATE_FORMAT(stat_date,'%Y-%m')
+
 
 -- 查询饼图
 
