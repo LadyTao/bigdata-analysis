@@ -5,13 +5,13 @@ t1.id,
 t1.uid,
 case when t1.pay_origin in ('3','4') then '神剪手移动端'
      when t1.pay_origin in ('1','2') then '神剪手'
-else '其他' end as productLine,
+else '其他' end as productline,
 case when t3.title is null then 'missing'
 		 else t3.title  end as channel,
 -- t3.title as channel,
 case when t1.open_type ='month' then '月付'
      when t1.open_type ='year' then '年付'
-else '其他' end as subscribe_type,
+else '其他' end as subcribe_type,
 case when t1.`type`='2'  then '高级会员'
      when t1.`type`='3'  then 'VIP至尊会员'
      when t1.`type`='4'  then '企业会员'
@@ -29,7 +29,10 @@ else '其他' end as payment_pattern,
 t1.order_no,
 t1.amount,
 t1.origin_amount,
-t1.inputtime
+t1.inputtime,
+from_unixtime(t1.inputtime+28800,'yyyy-MM-dd'),
+date_sub(next_day(from_unixtime(t1.inputtime,"yyyy-MM-dd"),'MO'),7),
+concat(from_unixtime(t1.inputtime+28800,'yyyy-MM'),'-01')
 --from_unixtime(t1.inputtime+28800) as inputtime
 from
 (select
