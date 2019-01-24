@@ -176,81 +176,6 @@ STORED AS TEXTFILE
 LOCATION 'hdfs://hdp-0.local:8020/path/dbsync/ci_wx_member_expire_date';
 
 
--- '2019-01-09'
-insert into dbsync.ci_wx_member_expire_date partition(expireDate='2019-01-09')
-select id,uid,vip_type,endtime,status,base_info, mobile,inputtime,updatetime,pay_mode from dbsync.shencut_store_wx_member where from_unixtime(endtime,'yyyy-MM-dd')='2019-01-09';
--- '2019-01-08'
-insert into dbsync.ci_wx_member_expire_date partition(expireDate='2019-01-08')
-select id,uid,vip_type,endtime,status,base_info, mobile,inputtime,updatetime,pay_mode from dbsync.shencut_store_wx_member where from_unixtime(endtime,'yyyy-MM-dd')='2019-01-08';
--- '2019-01-07'
-insert into dbsync.ci_wx_member_expire_date partition(expireDate='2019-01-07')
-select id,uid,vip_type,endtime,status,base_info, mobile,inputtime,updatetime,pay_mode from dbsync.shencut_store_wx_member where from_unixtime(endtime,'yyyy-MM-dd')='2019-01-07';
--- '2019-01-06'
-insert into dbsync.ci_wx_member_expire_date partition(expireDate='2019-01-06')
-select id,uid,vip_type,endtime,status,base_info, mobile,inputtime,updatetime,pay_mode from dbsync.shencut_store_wx_member where from_unixtime(endtime,'yyyy-MM-dd')='2019-01-06';
--- '2019-01-05'
-insert into dbsync.ci_wx_member_expire_date partition(expireDate='2019-01-05')
-select id,uid,vip_type,endtime,status,base_info, mobile,inputtime,updatetime,pay_mode from dbsync.shencut_store_wx_member where from_unixtime(endtime,'yyyy-MM-dd')='2019-01-05';
--- '2019-01-04'
-insert into dbsync.ci_wx_member_expire_date partition(expireDate='2019-01-04')
-select id,uid,vip_type,endtime,status,base_info, mobile,inputtime,updatetime,pay_mode from dbsync.shencut_store_wx_member where from_unixtime(endtime,'yyyy-MM-dd')='2019-01-04';
--- '2019-01-03'
-insert into dbsync.ci_wx_member_expire_date partition(expireDate='2019-01-03')
-select id,uid,vip_type,endtime,status,base_info, mobile,inputtime,updatetime,pay_mode from dbsync.shencut_store_wx_member where from_unixtime(endtime,'yyyy-MM-dd')='2019-01-03';
--- '2019-01-02'
-insert into dbsync.ci_wx_member_expire_date partition(expireDate='2019-01-02')
-select id,uid,vip_type,endtime,status,base_info, mobile,inputtime,updatetime,pay_mode from dbsync.shencut_store_wx_member where from_unixtime(endtime,'yyyy-MM-dd')='2019-01-02';
--- '2019-01-01'
-insert into dbsync.ci_wx_member_expire_date partition(expireDate='2019-01-01')
-select id,uid,vip_type,endtime,status,base_info, mobile,inputtime,updatetime,pay_mode from dbsync.shencut_store_wx_member where from_unixtime(endtime,'yyyy-MM-dd')='2019-01-01';
-
--- '2018-12-31'
-insert into dbsync.ci_wx_member_expire_date partition(expireDate='2018-12-31')
-select id,uid,vip_type,endtime,status,base_info, mobile,inputtime,updatetime,pay_mode from dbsync.shencut_store_wx_member where from_unixtime(endtime,'yyyy-MM-dd')='2018-12-31';
--- '2018-12-30'
-insert into dbsync.ci_wx_member_expire_date partition(expireDate='2018-12-30')
-select id,uid,vip_type,endtime,status,base_info, mobile,inputtime,updatetime,pay_mode from dbsync.shencut_store_wx_member where from_unixtime(endtime,'yyyy-MM-dd')='2018-12-30';
--- '2018-12-29'
-insert into dbsync.ci_wx_member_expire_date partition(expireDate='2018-12-29')
-select id,uid,vip_type,endtime,status,base_info, mobile,inputtime,updatetime,pay_mode from dbsync.shencut_store_wx_member where from_unixtime(endtime,'yyyy-MM-dd')='2018-12-29';
--- '2018-12-28'
-insert into dbsync.ci_wx_member_expire_date partition(expireDate='2018-12-28')
-select id,uid,vip_type,endtime,status,base_info, mobile,inputtime,updatetime,pay_mode from dbsync.shencut_store_wx_member where from_unixtime(endtime,'yyyy-MM-dd')='2018-12-28';
-
-
--- '2018-12-27'
-insert into dbsync.ci_wx_member_expire_date partition(expireDate='2018-12-27')
-select id,uid,vip_type,endtime,status,base_info, mobile,inputtime,updatetime,pay_mode from dbsync.shencut_store_wx_member where from_unixtime(endtime,'yyyy-MM-dd')='2018-12-27';
--- '2018-12-26'
-insert into dbsync.ci_wx_member_expire_date partition(expireDate='2018-12-26')
-select id,uid,vip_type,endtime,status,base_info, mobile,inputtime,updatetime,pay_mode from dbsync.shencut_store_wx_member where from_unixtime(endtime,'yyyy-MM-dd')='2018-12-26';
--- '2018-12-25'
-insert into dbsync.ci_wx_member_expire_date partition(expireDate='2018-12-25')
-select id,uid,vip_type,endtime,status,base_info, mobile,inputtime,updatetime,pay_mode from dbsync.shencut_store_wx_member where from_unixtime(endtime,'yyyy-MM-dd')='2018-12-25';
--- '2018-12-24'
-insert into dbsync.ci_wx_member_expire_date partition(expireDate='2018-12-24')
-select id,uid,vip_type,endtime,status,base_info, mobile,inputtime,updatetime,pay_mode from dbsync.shencut_store_wx_member where from_unixtime(endtime,'yyyy-MM-dd')='2018-12-24';
--- '2018-12-23'
-insert into dbsync.ci_wx_member_expire_date partition(expireDate='2018-12-23')
-select id,uid,vip_type,endtime,status,base_info, mobile,inputtime,updatetime,pay_mode from dbsync.shencut_store_wx_member where from_unixtime(endtime,'yyyy-MM-dd')='2018-12-23';
--- '2018-12-22'
-insert into dbsync.ci_wx_member_expire_date partition(expireDate='2018-12-22')
-select id,uid,vip_type,endtime,status,base_info, mobile,inputtime,updatetime,pay_mode from dbsync.shencut_store_wx_member where from_unixtime(endtime,'yyyy-MM-dd')='2018-12-22';
--- '2018-12-21'
-insert into dbsync.ci_wx_member_expire_date partition(expireDate='2018-12-21')
-select id,uid,vip_type,endtime,status,base_info, mobile,inputtime,updatetime,pay_mode from dbsync.shencut_store_wx_member where from_unixtime(endtime,'yyyy-MM-dd')='2018-12-21';
--- '2018-12-20'
-insert into dbsync.ci_wx_member_expire_date partition(expireDate='2018-12-20')
-select id,uid,vip_type,endtime,status,base_info, mobile,inputtime,updatetime,pay_mode from dbsync.shencut_store_wx_member where from_unixtime(endtime,'yyyy-MM-dd')='2018-12-20';
--- '2018-12-19'
-insert into dbsync.ci_wx_member_expire_date partition(expireDate='2018-12-19')
-select id,uid,vip_type,endtime,status,base_info, mobile,inputtime,updatetime,pay_mode from dbsync.shencut_store_wx_member where from_unixtime(endtime,'yyyy-MM-dd')='2018-12-19';
--- '2018-12-18'
-insert into dbsync.ci_wx_member_expire_date partition(expireDate='2018-12-18')
-select id,uid,vip_type,endtime,status,base_info, mobile,inputtime,updatetime,pay_mode from dbsync.shencut_store_wx_member where from_unixtime(endtime,'yyyy-MM-dd')='2018-12-18';
--- '2018-12-17'
-insert into dbsync.ci_wx_member_expire_date partition(expireDate='2018-12-17')
-select id,uid,vip_type,endtime,status,base_info, mobile,inputtime,updatetime,pay_mode from dbsync.shencut_store_wx_member where from_unixtime(endtime,'yyyy-MM-dd')='2018-12-17';
 
 
 
@@ -275,3 +200,50 @@ FIELDS TERMINATED BY '\001'
 LINES TERMINATED BY '\n'
 STORED AS TEXTFILE
 LOCATION 'hdfs://hdp-0.local:8020/path/mart/ci_order';
+
+
+
+--mysql
+
+-- data_user:
+CREATE TABLE `ci_member_renew_rate_day` (
+  `stat_date` date DEFAULT NULL COMMENT '数据日期，到期日期',
+  `channel` varchar(255)   DEFAULT NULL COMMENT '用户推广渠道',
+  `expire_time_type` varchar(255)  DEFAULT NULL COMMENT '到期用户vip类型：month,year',
+  `expire_user_level` varchar(255) DEFAULT NULL COMMENT '用户到期前的vip类型：高级，vip，企业',
+  `renew_time_type` varchar(255)  DEFAULT NULL COMMENT '续费时长类型：month,year',
+  `renew_user_level` varchar(255)  DEFAULT NULL COMMENT '续费vip类型：高级，vip，企业',
+  `expire_user` int(10) DEFAULT NULL COMMENT '到期用户数',
+  `renew_user` int(10) DEFAULT NULL COMMENT '续费用户数'
+)ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Ci会员续费率表';
+
+-- data_sale
+CREATE TABLE `ci_order` (
+  `id` int(10) DEFAULT NULL COMMENT 'id',
+  `uid` int(10) DEFAULT NULL COMMENT 'user id ',
+  `productline` varchar(255) DEFAULT NULL COMMENT '产品线，',
+  `channel` varchar(255) DEFAULT NULL COMMENT '渠道：见后台推广渠道',
+  `subscribe_type` varchar(255) DEFAULT NULL COMMENT '月付，年付',
+  `member_class` varchar(255) DEFAULT NULL COMMENT '高级会员，VIP至尊会员，企业会员',
+  `os_platform` varchar(255) DEFAULT NULL COMMENT 'Windows,Andriod,IOS',
+  `payment_pattern` varchar(255) DEFAULT NULL COMMENT '支付方式：支付宝，微信，小程序，IOS支付，无需支付',
+  `order_no` varchar(255) DEFAULT NULL COMMENT '订单编号',
+  `amount` double(10,2) DEFAULT NULL COMMENT '实际支付金额',
+  `origin_amount` double(10,2) DEFAULT NULL COMMENT '原价',
+  `inputtime` int(10) unsigned DEFAULT NULL COMMENT '订单日期',
+  `show_date` varchar(10) DEFAULT NULL COMMENT '显示日期',
+  `show_week` varchar(10) DEFAULT NULL COMMENT '显示周',
+  `show_month` varchar(10) DEFAULT NULL COMMENT '显示月',
+  KEY `amount` (`amount`),
+  KEY `channel` (`channel`) USING HASH,
+  KEY `subscribe_type` (`subscribe_type`) USING HASH,
+  KEY `member_class` (`member_class`) USING HASH,
+  KEY `os_platform` (`os_platform`) USING HASH,
+  KEY `payment_pattern` (`payment_pattern`) USING HASH,
+  KEY `order_no` (`order_no`) USING HASH,
+  KEY `origin_amount` (`origin_amount`) USING BTREE,
+  KEY `show_date` (`show_date`) USING HASH,
+  KEY `show_week` (`show_week`) USING HASH,
+  KEY `show_month` (`show_month`) USING HASH,
+  KEY `productline` (`productline`) USING BTREE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Ci订单表';
