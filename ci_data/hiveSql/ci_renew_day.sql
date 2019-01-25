@@ -52,7 +52,7 @@ else '其他' end as renew_user_level ,
 case when open_type ='month' then '月付'
      when open_type ='year' then '年付'
 else '其他' end as renew_time_type
-from dbsync.shencut_store_wx_order where   status in ('20','10') and pay_type='1' and  (from_unixtime(inputtime+28800,'yyyy-MM-dd') between date_sub('${hiveconf:expire}',7) and date_add('${hiveconf:expire}',7))
+from dbsync.shencut_store_wx_order where   status in ('20') and pay_type='1' and  (from_unixtime(inputtime+28800,'yyyy-MM-dd') between date_sub('${hiveconf:expire}',7) and date_add('${hiveconf:expire}',7))
 ) t4 -- 使用 shencut_store_wx_order where  from_unixtime(inputtime+28800,'yyyy-MM-dd') bewteen '2019-01-04' and '2019-01-18' 来获取相关的用户订单信息
 on t3.uid= t4.uid
 group by from_unixtime(t3.endtime+28800,'yyyy-MM-dd'),t3.channel,expire_time_type,expire_user_level,renew_time_type,renew_user_level;

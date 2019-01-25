@@ -47,7 +47,7 @@ type,
 pay_origin,
 inputtime
 from dbsync.shencut_store_wx_order
-where  status in ('10','20')
+where  status in ('20')
 -- and FROM_UNIXTIME(inputtime) >'2019-01-07 17:05:50'
 ) t1
 left join
