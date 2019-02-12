@@ -1,4 +1,5 @@
 #!/bin/bash
+#sudo su hdfs
 starttime=`date +'%Y-%m-%d %H:%M:%S'`
 
 # 1  cbs_out:order_info add :commision,tax
@@ -27,7 +28,7 @@ echo "import finished!!!"
 echo "begin to truncate the dbsync.cbs_out_customer_info "
 hive -e "truncate table dbsync.cbs_out_customer_info"
 echo "begin to import the customer_info"
-sqoop import --connect jdbc:mysql://192.168.10.69:3306/cbs_out?characterEncoding=utf-8 --username vpbigdata --password HHzp##94395  -m 4 --hive-overwrite --table customer_info  --columns 'customer_id,country,email' --split-by customer_id --hcatalog-database dbsync  --hcatalog-table cbs_out_customer_info --hive-overwrite --null-string '\\N' --null-non-string '\\N' --verbose
+sqoop import --connect jdbc:mysql://192.168.10.69:3306/cbs_out?characterEncoding=utf-8 --username vpbigdata --password HHzp##94395  -m 4 --hive-overwrite --table customer_info  --columns 'customer_id,country,email,created' --split-by customer_id --hcatalog-database dbsync  --hcatalog-table cbs_out_customer_info --hive-overwrite --null-string '\\N' --null-non-string '\\N' --verbose
 
 echo "import finished!!!"
 
@@ -88,15 +89,26 @@ echo "begin to import the dim_country_ods"
 sqoop import  "-Dorg.apache.sqoop.splitter.allow_text_splitter=true" --connect jdbc:mysql://10.14.1.102:3306/sync_ods_report_dm?characterEncoding=utf-8 --username root --password testlalatest  -m 4 --hive-overwrite --table dim_country_ods  --columns 'country_en,country_cn'  --split-by country_en --hcatalog-database dbsync  --hcatalog-table sync_ods_report_dm_dim_country_ods --hive-overwrite --null-string '\\N' --null-non-string '\\N' --verbose
 echo "import finished!!!"
 
-# 8 filmora_es:wx_order_goods
+# 8 f_order:wx_order
 
-echo "begin to truncate the dbsync.filmora_es_wx_order_goods "
-hive -e "truncate table dbsync.filmora_es_wx_order_goods"
+echo "begin to truncate the table f_order_wx_order everyday"
+hadoop fs -rm -r  "hdfs://hdp-0.local:8020/path/dbsync/f_order_wx_order"
+echo "truncate table f_order_wx_order done!!"
 
-echo "begin to import the wx_order_goods"
-sqoop import --connect jdbc:mysql://192.168.11.82:3307/filmora_es?characterEncoding=utf-8 --username vp_filmora_read --password ERatt##89235  -m 4  --hive-overwrite --query "select * from (select id,uid,product_id,type,title,amount,actual_amount,origin_amount,order_no,trade_no,pay_type,inputtime from wx_order_goods WHERE  uid >0 and product_id  > 0 and pay_type=1) t WHERE \$CONDITIONS"  --split-by t.id --hcatalog-database dbsync  --hcatalog-table filmora_es_wx_order_goods --hive-overwrite --null-string '\\N' --null-non-string '\\N' --verbose
+echo "begin to load the data of wx_order from f_order db to hive  dbsync.f_order_wx_order"
+sqoop import --connect jdbc:mysql://192.168.11.82:3308/f_order?tinyInt1isBit=false --username vp_f_read --password vSYaTqhjmtJ+l7ix  -m 4  --hive-overwrite  --table wx_order  --map-column-hive vip_level=STRING,status=STRING,pay_type=STRING,open_vip_type=STRING,is_auto_renew=STRING,is_renewal=STRING,from_site=STRING,use_coupon=STRING,origin=STRING  --hive-database dbsync --hive-table  f_order_wx_order  --target-dir  'hdfs://hdp-0.local:8020/path/dbsync/f_order_wx_order' --hive-drop-import-delims --fields-terminated-by '\001'  --lines-terminated-by '\n'
+echo "load  the data wx_order in f_order done!!"
 
-echo "import finished!!!"
+# 8-2 f_order.wx_order_goods
+echo "begin to truncate the table f_order_wx_order_goods everyday"
+hadoop fs -rm -r  "hdfs://hdp-0.local:8020/path/dbsync/f_order_wx_order_goods"
+echo "truncate table f_order_wx_order_goods done!!"
+
+echo "begin to load the data of wx_order_goods from f_order db to hive  dbsync.f_order_wx_order_goods"
+sqoop import --connect jdbc:mysql://192.168.11.82:3308/f_order?tinyInt1isBit=false --username vp_f_read --password vSYaTqhjmtJ+l7ix  -m 4  --hive-overwrite  --table wx_order_goods  --map-column-hive type=STRING,pay_type=STRING,open_vip_type=STRING,vip_level=STRING   --hive-database dbsync --hive-table  f_order_wx_order_goods  --target-dir  'hdfs://hdp-0.local:8020/path/dbsync/f_order_wx_order_goods' --hive-drop-import-delims --fields-terminated-by '\001'  --lines-terminated-by '\n'
+echo "load  the data wx_order_goods in f_order done!!"
+
+
 
 
 # 9 cbs_local_main: order_channel_info

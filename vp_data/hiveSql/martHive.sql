@@ -1,3 +1,7 @@
+
+
+
+
 use dbsync;
 insert overwrite table mart.user_tag
 select
@@ -89,7 +93,6 @@ left join
 cbs_out_product_detail t2
 on (t1.product_id = t2.product_id )
 left join
--- 此处的子查询是为了获取更全的国家简写信息，order_info 表中国家简写信息不全
 (SELECT
 t9.order_id,
 t9.product_id,
@@ -109,23 +112,18 @@ cbs_out_sys_country t10
 on UPPER(t9.country)= t10.country_name) t3
 -- cbs_out_order_info t3
 on (t1.trade_no = t3.order_num and t1.product_id = t3.product_id)
--- 此处查询是为了给订单添加产品版本信息
 left join
 cbs_out_product_version t4
 on (t3.version_id = t4.version_id)
--- 此处是为了给订单数据添加渠道信息
 left join
 cbs_local_main_order_channel_info t5
 on (t5.order_id = t3.order_id)
--- 此处是为了给订单添加国家中文名称的信息
 left join sync_ods_report_dm_dim_country_ods t6
 on (t6.country_en= t3.country_short_name)
 left join
--- 此处是为了给订单数据添加已有的用户标签
 filmora_uuid_wx_member tu
 on (t1.uid = tu.uid)
-left join
--- 此处子查询是从 filmora_es_wx_order_goods 获取用户相关的 purchase_frequency,trade_status,last_effect_purchase_time
+left join -- 从 filmora_es_wx_order_goods 获取购买频率,交易状态,最后一次资源订阅时间信息
 (
 SELECT t.uid ,
 t.purchase_frequency,

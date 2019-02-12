@@ -135,7 +135,7 @@ LINES TERMINATED BY '\n'
 STORED AS TEXTFILE
 LOCATION 'hdfs://hdp-0.local:8020/path/dbsync/shencut_store_wx_member_interest_tags';
 
--- 到期用户和续费用户统计表(日)
+-- 到期用户和续费用户统计表(日) 分区表
 CREATE TABLE IF NOT EXISTS ci_member_renew_rate_day (
   stat_date string  COMMENT '数据日期，到期日期',
   channel string  COMMENT '用户推广渠道',
@@ -153,6 +153,27 @@ FIELDS TERMINATED BY '\001'
 LINES TERMINATED BY '\n'
 STORED AS TEXTFILE
 LOCATION 'hdfs://hdp-0.local:8020/path/mart/ci_member_renew_rate_day';
+
+
+
+-- mart.
+CREATE TABLE IF NOT EXISTS ci_member_renew_rate_day1 (
+  stat_date string  COMMENT '数据日期，到期日期',
+  channel string  COMMENT '用户推广渠道',
+  expire_time_type string   COMMENT '到期用户vip类型：month(月付),year(年付)',
+  expire_user_level string COMMENT '用户到期前的vip类型： 高级会员,VIP会员,企会员',
+  renew_time_type string COMMENT '续费时长类型： month(月付),year(年付)',
+  renew_user_level string  COMMENT '续费vip类型：高级会员,VIP会员,企会员',
+  expire_user int COMMENT '到期用户数',
+  renew_user int COMMENT '续费用户数'
+)
+COMMENT '神剪手到期-续费统计表(日)'
+ROW FORMAT DELIMITED
+FIELDS TERMINATED BY '\001'
+LINES TERMINATED BY '\n'
+STORED AS TEXTFILE
+LOCATION 'hdfs://hdp-0.local:8020/path/mart/ci_member_renew_rate_day1';
+
 
 -- ci会员到期快照表
 CREATE TABLE IF NOT EXISTS ci_wx_member_expire_date (
@@ -200,6 +221,11 @@ FIELDS TERMINATED BY '\001'
 LINES TERMINATED BY '\n'
 STORED AS TEXTFILE
 LOCATION 'hdfs://hdp-0.local:8020/path/mart/ci_order';
+
+
+
+
+
 
 
 
