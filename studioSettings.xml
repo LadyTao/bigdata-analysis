@@ -20,5 +20,11 @@
         </option>
       </SdkSettings>
     </option>
+    <option name="updaterSettings">
+      <UpdaterSettings>
+        <option name="lastCheckedTimeInMillis" value="1550560672689" />
+        <option name="latestPluginVersion" value="3.0.5" />
+      </UpdaterSettings>
+    </option>
   </component>
 </application>
