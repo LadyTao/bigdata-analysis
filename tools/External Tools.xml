@@ -1,0 +1,9 @@
+<toolSet name="External Tools">
+  <tool name="pip install" showInMainMenu="true" showInEditor="true" showInProject="true" showInSearchPopup="true" disabled="false" useConsole="true" showConsoleOnStdOut="false" showConsoleOnStdErr="false" synchronizeAfterRun="true">
+    <exec>
+      <option name="COMMAND" value="D:\Files\my_python_file\report2\venv\Scripts\pip3.exe" />
+      <option name="PARAMETERS" value="install -r $FileName$" />
+      <option name="WORKING_DIRECTORY" value="D:/Files/my_python_file/report2/venv/" />
+    </exec>
+  </tool>
+</toolSet>
