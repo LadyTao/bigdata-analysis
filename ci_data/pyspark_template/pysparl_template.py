@@ -145,3 +145,5 @@ if __name__ == "__main__":
     group by t2.wsid
     """
     insert_to_hive(sql_query=insert_sql_str, sql_session=sparksession)
+    sparksession.stop()
+
