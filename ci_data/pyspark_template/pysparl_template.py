@@ -8,6 +8,8 @@ from pprintpp import pprint as pp
 
 import pyspark.sql.functions as F
 
+import datetime
+
 """
 spark-submit pyspark  file with special resources demo
 
@@ -15,7 +17,7 @@ spark-submit pyspark  file with special resources demo
 
 
  插入mysql 时一定要添加  --jars  --driver-class-path  
-./bin/spark-submit  --num-executors 4 --executor-memory 4G --executor-cores 4 --driver-memory 4G --driver-cores 4 --jars /usr/hdp/3.0.1.0-187/spark2/jars/mysql-connector-java-5.1.47.jar --driver-class-path /usr/hdp/3.0.1.0-187/spark2/jars/mysql-connector-java-5.1.47.jar  /usr/local/bigdata/jobtaskh0/pythonjob/uos/uid_label/test.py 
+./bin/spark-submit  --num-executors 4 --executor-memory 4G --executor-cores 4 --driver-memory 4G --driver-cores 4 --jars /usr/hdp/3.0.1.0-187/spark2/jars/mysql-connector-java-5.1.47.jar --driver-class-path /usr/hdp/3.0.1.0-187/spark2/jars/mysql-connector-java-5.1.47.jar  /usr/local/bigdata/jobtaskh0/pythonjob/uos/uid_label/test.py day '2019-03-28' 
 
 
 
@@ -67,6 +69,67 @@ def insert_to_hive(sql_query, sql_session):
     print("insert into hive table done")
 
 
+
+
+def day(date, moudle_sql):
+    """
+
+    :param date: '2019-03-30'
+    :param moudle_sql:
+    :return:
+    """
+
+    date = (datetime.datetime.strptime(date, '%Y-%m-%d') - datetime.timedelta(
+        days=1)).strftime('%Y-%m-%d')
+    moudle_sql = moudle_sql.replace('__DAY1__', str(date)).replace('__DAY2__',
+                                                                   str(date))
+
+    return moudle_sql
+
+
+def week(date, moudle_sql):
+    """
+
+    :param date: '2019-03-30'
+    :param moudle_sql:
+    :return:
+    """
+
+    date_start = (datetime.datetime.strptime(date,
+                                             '%Y-%m-%d') - datetime.timedelta(
+        days=7)).strftime('%Y-%m-%d')
+    date_end = (datetime.datetime.strptime(date,
+                                           '%Y-%m-%d') - datetime.timedelta(
+        days=1)).strftime('%Y-%m-%d')
+
+    moudle_sql = moudle_sql.replace('__DAY1__', str(date_start)).replace(
+        '__DAY2__', str(date_end))
+    return moudle_sql
+
+
+def month(date, moudle_sql):
+    """
+
+    :param date: '2019-03-30'
+    :param moudle_sql:
+    :return:
+    """
+
+    tmp_date = datetime.datetime.strptime(date, '%Y-%m-%d')
+    print(tmp_date)
+    date_start = datetime.datetime(tmp_date.year, tmp_date.month - 1,
+                                   1).strftime('%Y-%m-%d')
+    date_end = (datetime.datetime(tmp_date.year, tmp_date.month,
+                                  1) - datetime.timedelta(1)).strftime(
+        '%Y-%m-%d')
+    moudle_sql = moudle_sql.replace('__DAY1__', str(date_start)).replace(
+        '__DAY2__', str(date_end))
+    return moudle_sql
+
+
+
+
+
 if __name__ == "__main__":
     SparkContext.setSystemProperty("hive.metastore.uris", "thrift://hdp-0:9083")
 
@@ -76,74 +139,58 @@ if __name__ == "__main__":
                     .enableHiveSupport()
                     .getOrCreate())
 
-    sql_str = '''
-				select * from uos_com.tags_all where day='2019-03-24'
-			 '''
 
-    excute(sql_query=sql_str, sql_session=sparksession)
 
-    insert_into_mysql(sql_query=sql_str, sql_session=sparksession)
 
-    # 插入hive分区表信息，此处需要提供相关的插入hive分区表语句
-    insert_sql_str = """
-    insert overwrite table uos_com.screen partition(day= '2019-03-26') 
-    select 
+    moudle_sql = """
+     select 
     t1.wsid,
-    max(t1.ever_use_video_pannel) as ever_use_video_pannel,
-    max(t1.ever_use_audio_pannel) as ever_use_audio_pannel,
-    max(t1.ever_use_image_pannel) as ever_use_image_pannel,
-    max(t1.ever_use_effect_pannel) as ever_use_effect_pannel,
-    max(t1.ever_use_transition_pannel) as ever_use_transition_pannel,
-    max(t1.ever_use_text_pannel) as ever_use_text_pannel,
-    max(t1.ever_use_advance_text_pannel) as ever_use_advance_text_pannel,
-    max(t1.ever_use_crop_pannel) as ever_use_crop_pannel,
-    max(t1.ever_use_advanced_color_tuning_pannel) as ever_use_advanced_color_tuning_pannel
-    from 
+    max(t1.ever_export_youtube_vimeo) as ever_export_youtube_vimeo
+    from
     (
     select   wsid ,
-    case when logitem='video_property'   then 1 else 0 end as ever_use_video_pannel,
-    case when logitem='audio_property' then 1 else 0 end as ever_use_audio_pannel,
-    case when logitem='image_property'  then 1 else 0 end as ever_use_image_pannel,
-    case when logitem='effect_property'  then 1 else 0 end as ever_use_effect_pannel,
-    case when logitem='transition_property'   then 1 else 0 end as ever_use_transition_pannel,
-    case when logitem='text_property'  then 1 else 0 end as ever_use_text_pannel,
-    case when logitem='advanced_text_edit'   then 1 else 0 end as ever_use_advance_text_pannel,
-    case when logitem='crop' then 1 else 0 end as ever_use_crop_pannel,
-    case when logitem='advanced_color_tuning'  then 1 else 0 end as ever_use_advanced_color_tuning_pannel
-    from log.cl_filmora_win where day='2019-03-26'  
-     and wsid is not null and logtype="screen" and logitem in ("video_property","audio_property","image_property","effect_property","transition_property","text_property","advanced_text_edit","crop","advanced_color_tuning")
+    case when upper(params["export_type"]) IN ("YOUTUBE","VIMEO")  then 1 else 0 end as ever_export_youtube_vimeo
+    from log.cl_filmora_win where  day  between    '__DAY1__' and '__DAY2__'  
+    and wsid is not null and logtype="export" and logitem="export_format" and params['export_type'] in ("YouTube","Vimeo") 
     
     ) t1
-    group by t1.wsid 
+    group by t1.wsid
     union all 
     select 
     t2.wsid,
-    max(t2.ever_use_video_pannel) as ever_use_video_pannel,
-    max(t2.ever_use_audio_pannel) as ever_use_audio_pannel,
-    max(t2.ever_use_image_pannel) as ever_use_image_pannel,
-    max(t2.ever_use_effect_pannel) as ever_use_effect_pannel,
-    max(t2.ever_use_transition_pannel) as ever_use_transition_pannel,
-    max(t2.ever_use_text_pannel) as ever_use_text_pannel,
-    max(t2.ever_use_advance_text_pannel) as ever_use_advance_text_pannel,
-    max(t2.ever_use_crop_pannel) as ever_use_crop_pannel,
-    max(t2.ever_use_advanced_color_tuning_pannel) as ever_use_advanced_color_tuning_pannel
-    from 
+    max(t2.ever_export_youtube_vimeo) as ever_export_youtube_vimeo
+    from
     (
     select   wsid ,
-    case when logitem='video_property'   then 1 else 0 end as ever_use_video_pannel,
-    case when logitem='audio_property' then 1 else 0 end as ever_use_audio_pannel,
-    case when logitem='image_property'  then 1 else 0 end as ever_use_image_pannel,
-    case when logitem='effect_property'  then 1 else 0 end as ever_use_effect_pannel,
-    case when logitem='transition_property'   then 1 else 0 end as ever_use_transition_pannel,
-    case when logitem='text_property'  then 1 else 0 end as ever_use_text_pannel,
-    case when logitem='advanced_text_edit'   then 1 else 0 end as ever_use_advance_text_pannel,
-    case when logitem='crop' then 1 else 0 end as ever_use_crop_pannel,
-    case when logitem='advanced_color_tuning'  then 1 else 0 end as ever_use_advanced_color_tuning_pannel
-    from log.cl_filmora_mac where day='2019-03-26'  
-     and wsid is not null and logtype="screen" and logitem in ("video_property","audio_property","image_property","effect_property","transition_property","text_property","advanced_text_edit","crop","advanced_color_tuning")
+    case when upper(params["export_type"]) IN ("YOUTUBE","VIMEO")  then 1 else 0 end as ever_export_youtube_vimeo
+    from log.cl_filmora_mac where day  between    '__DAY1__' and '__DAY2__'  
+    and wsid is not null and logtype="export" and logitem="export_format" and params['export_type'] in ("YouTube","Vimeo") 
+    
     ) t2
     group by t2.wsid
-    """
-    insert_to_hive(sql_query=insert_sql_str, sql_session=sparksession)
-    sparksession.stop()
 
+    """
+
+
+
+    # spark-submit 提供时间类型参数，计算日，周，月 day,week,month
+    time_type = sys.argv[1]
+
+    excute_date = str(sys.argv[2])
+
+    # 根据任务传入的时间类型，判断执行的任务是日任务，周任务或者月任务
+    if time_type == 'day':
+        sql_str = day(date=excute_date, moudle_sql=moudle_sql)
+        print("sql_str:", sql_str)
+        excute(sql_query=sql_str, sql_session=sparksession)
+    elif time_type == 'week':
+        sql_str = week(date=excute_date, moudle_sql=moudle_sql)
+        print("sql_str:", sql_str)
+        excute(sql_query=sql_str, sql_session=sparksession)
+    else:
+        sql_str = month(date=excute_date, moudle_sql=moudle_sql)
+        print("sql_str:", sql_str)
+        excute(sql_query=sql_str, sql_session=sparksession)
+
+
+    sparksession.stop()
