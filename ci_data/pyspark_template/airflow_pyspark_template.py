@@ -27,10 +27,6 @@ dag = DAG(
 )
 
 
-
-
-
-
 # # week 类型的任务
 # dag = DAG(
 #     dag_id='pyspark_run_template',
