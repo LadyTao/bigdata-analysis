@@ -18,14 +18,14 @@ args = {
 }
 
 
-# # day 类型的任务 根据相应的类型，打开或者关闭相关的注释
-# dag = DAG(
-#     dag_id='pyspark_run_template',
-#     default_args=args,
-#     schedule_interval='50 6 * * *',
-#     dagrun_timeout=timedelta(minutes=60),
-# )
-#
+# day 类型的任务 根据相应的类型，打开或者关闭相关的注释
+dag = DAG(
+    dag_id='pyspark_run_template',
+    default_args=args,
+    schedule_interval='50 6 * * *',
+    dagrun_timeout=timedelta(minutes=60),
+)
+
 
 
 
@@ -39,14 +39,14 @@ args = {
 #     dagrun_timeout=timedelta(minutes=60),
 # )
 #
-
-# month 类型的任务
-dag = DAG(
-    dag_id='pyspark_run_template',
-    default_args=args,
-    schedule_interval='50 6 1 * *',
-    dagrun_timeout=timedelta(minutes=60),
-)
+#
+# # month 类型的任务
+# dag = DAG(
+#     dag_id='pyspark_run_template',
+#     default_args=args,
+#     schedule_interval='50 6 1 * *',
+#     dagrun_timeout=timedelta(minutes=60),
+# )
 
 insert = SSHOperator(
     ssh_conn_id='ws@hdp-0',
