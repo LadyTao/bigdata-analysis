@@ -1,9 +1,0 @@
-<application>
-  <component name="StudioSettings">
-    <option name="generalSettings">
-      <GeneralSettings>
-        <option name="enableInternalFeatures" value="false" />
-      </GeneralSettings>
-    </option>
-  </component>
-</application>
