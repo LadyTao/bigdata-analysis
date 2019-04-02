@@ -1,10 +1,13 @@
 
 -- store.wx_member
-CREATE TABLE IF NOT EXISTS shencut_store_wx_member (
+
+CREATE TABLE IF NOT EXISTS shencut_store_wx_member(
   id int  ,
   uid int COMMENT ' DEFAULT "0"  用户UID（账户系统）',
   vip_type string COMMENT '用户组（1：免费用户，2：高级用户，3：VIP用户，4：企业用户）',
   endtime int   COMMENT '会员到期时间',
+  ecommerce_vip_type string COMMENT '电商版用户组（1：免费用户，3：VIP用户）',
+  ecommerce_endtime INT COMMENT '电商版vip过期时间',
   status string  COMMENT '1：正常；2：锁定',
   base_info string  COMMENT '用户基础信息，由wondershareID返回过来的数据',
   mobile string DEFAULT '' COMMENT '手机号码',
@@ -13,6 +16,7 @@ CREATE TABLE IF NOT EXISTS shencut_store_wx_member (
   reg_location string COMMENT '注册地区',
   reg_origin string  COMMENT '注册来源 1:web端,2:产品端,3:IOS端,4:安卓端',
   spread_origin int COMMENT '渠道推广来源',
+  agent_id int COMMENT '代理商ID',
   inputtime int comment '0',
   updatetime int comment '0',
   pay_mode string COMMENT '付费方式:day,year,month',
@@ -42,6 +46,7 @@ select distinct industry from dbsync.shencut_store_wx_member
 --stroe.wx_order
 CREATE TABLE shencut_store_wx_order (
   id int   ,
+  product_type string  COMMENT '产品类型（1：神剪手，2：神剪手电商版）',
   uid int   comment 'uid default:0',
   subject string    COMMENT '主题',
   type string    COMMENT '交易类型（会员充值类：【2：充值高级会员， 3：充值VIP会员，4：充值企业用户】请保持与member表的group字段一致）',

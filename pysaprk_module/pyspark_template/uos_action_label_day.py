@@ -260,7 +260,7 @@ if __name__ == "__main__":
     from
     (
     select   wsid ,
-    case when params["audio_name_select"] !='null'  then 1 else 0 end as ever_effect_usage_audio,
+    case when params["audio_name_select"] !='null'  then 1cd else 0 end as ever_effect_usage_audio,
     case when params["title_name_select"] !='null' then 1 else 0 end as ever_effect_usage_title,
     case when params["transition_name_select"] !='null'  then 1 else 0 end as ever_effect_usage_transition,
     case when params["effect_name_select"] !='null' then 1 else 0 end as ever_effect_usage_effect,
