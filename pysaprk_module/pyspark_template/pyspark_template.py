@@ -227,7 +227,7 @@ if __name__ == "__main__":
                     .getOrCreate())
 
     moudle_sql = """
-     select 
+    select 
     t1.wsid,
     max(t1.ever_export_youtube_vimeo) as ever_export_youtube_vimeo
     from
