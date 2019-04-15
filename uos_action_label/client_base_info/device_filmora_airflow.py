@@ -29,9 +29,9 @@ args = {
     'email_on_retry': True,
 }
 
-#day 类型的任务 根据相应的类型，打开或者关闭相关的注释
+# day 类型的任务 根据相应的类型，打开或者关闭相关的注释
 dag = DAG(
-    dag_id='uos_action_label_day_airflow',
+    dag_id='device_filmora',
     default_args=args,
     schedule_interval='50 5 * * *',
     dagrun_timeout=timedelta(minutes=60),
@@ -66,7 +66,7 @@ day_partition = SSHOperator(
                 --driver-cores 4 \
                 --jars /usr/hdp/3.0.1.0-187/spark2/jars/mysql-connector-java-5.1.47.jar \
                 --driver-class-path /usr/hdp/3.0.1.0-187/spark2/jars/mysql-connector-java-5.1.47.jar \
-                /usr/local/bigdata/jobtaskh0/pythonjob/uos/uid_label/client_base_info_pyspark.py  \
+                /usr/local/bigdata/jobtaskh0/pythonjob/uos/uid_label/device_filmora.py  \
                 day \
                 {{ ds_nodash }} ",
     dag=dag
