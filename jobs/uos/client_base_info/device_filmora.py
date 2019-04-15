@@ -225,7 +225,7 @@ if __name__ == "__main__":
 
     sparksession = (SparkSession
                     .builder
-                    .appName('client_base_info')
+                    .appName('device_filmora')
                     .enableHiveSupport()
                     .getOrCreate())
 
@@ -251,51 +251,56 @@ if __name__ == "__main__":
     #     print("sql_str:", sql_str)
     #     excute(sql_query=sql_str, sql_session=sparksession)
 
-
-
-
-    client_base_info_sql ="""
-        insert overwrite table uos_com.client_base_info partition(day='__DAY1__')
+    device_filmora_win_sql = """
+        insert overwrite table base.device_filmora_win partition(day = '__DAY1__')
         select
-        t1.devid,
-        max(t1.version) as version,
-        min(t1.day) as fisrt_active,
+        t1.wsid,
+        min(t1.day) as first_active,
         max(t1.day) as last_active,
-        max(t1.os_platform) as platform
+        min(t1.product_id) as product_id,
+        max(t1.version) as app_version
         from
         (select
-        devid,
+        wsid,
         params['app_version'] as version,
-        'win' as os_platform,
+        params['product_id'] as product_id,
         day
-        from log.cl_filmora_win where logitem='app_launch' and devid is not null and day <'__DAY1__'
+        from log.cl_filmora_win where logitem='app_launch' and wsid is not null   and day < '__DAY1__' 
         ) t1
-        group by t1.devid
-        union  all
-        select
-        t2.devid,
-        max(t2.version) as version,
-        min(t2.day) as fisrt_active,
-        max(t2.day) as last_active,
-        max(t2.os_platform) as platform
-        from
-        (select
-        devid,
-        params['app_version'] as version,
-        'mac' as os_platform,
-        day
-        from log.cl_filmora_mac where logitem='app_launch' and devid is not null and day <'__DAY1__'
-        ) t2
-        group by t2.devid
+        group by t1.wsid
         """
 
     if time_type == 'day':
-        client_base_info_sql = job_day(date=excute_date,
-                                   moudle_sql=client_base_info_sql)
-        print("client_base_info_sql:", client_base_info_sql)
-        print("begin to insert uos_com.client_base_info table ")
-        excute(sql_query=client_base_info_sql, sql_session=sparksession)
+        device_filmora_win_sql = job_day(date=excute_date,
+                                       moudle_sql=device_filmora_win_sql)
+        print("device_filmora_win_sql:", device_filmora_win_sql)
+        print("begin to insert uos_com.device_filmora_win table ")
+        excute(sql_query=device_filmora_win_sql, sql_session=sparksession)
 
+    device_filmora_mac_sql = """
+        insert overwrite table base.device_filmora_mac partition(day='__DAY1__')
+        select
+        t1.wsid,
+        min(t1.day) as first_active,
+        max(t1.day) as last_active,
+        min(t1.product_id) as product_id,
+        max(t1.version) as app_version
+        from
+        (select
+        wsid,
+        params['app_version'] as version,
+        params['product_id'] as product_id,
+        day
+        from log.cl_filmora_mac where logitem='app_launch' and wsid is not null   and day <'__DAY1__' 
+        ) t1
+        group by t1.wsid
+        """
 
+    if time_type == 'day':
+        device_filmora_mac_sql = job_day(date=excute_date,
+                                       moudle_sql=device_filmora_mac_sql)
+        print("device_filmora_mac_sql:", device_filmora_mac_sql)
+        print("begin to insert uos_com.device_filmora_mac table ")
+        excute(sql_query=device_filmora_mac_sql, sql_session=sparksession)
 
     sparksession.stop()
