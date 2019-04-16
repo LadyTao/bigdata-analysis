@@ -252,22 +252,22 @@ if __name__ == "__main__":
     #     excute(sql_query=sql_str, sql_session=sparksession)
 
     device_filmora_win_sql = """
-        insert overwrite table base.device_filmora_win partition(day = '__DAY1__')
-        select
-        t1.wsid,
-        min(t1.day) as first_active,
-        max(t1.day) as last_active,
-        min(t1.product_id) as product_id,
-        max(t1.version) as app_version
-        from
-        (select
-        wsid,
-        params['app_version'] as version,
-        params['product_id'] as product_id,
-        day
-        from log.cl_filmora_win where logitem='app_launch' and wsid is not null   and day < '__DAY1__' 
-        ) t1
-        group by t1.wsid
+    insert overwrite table base.device_filmora_win partition(day='__DAY1__')
+    select
+    t1.devid,
+    min(t1.day) as first_active,
+    max(t1.day) as last_active,
+    min(t1.product_id) as product_id,
+    max(t1.version) as app_version
+    from
+    (select
+    devid,
+    params['app_version'] as version,
+    params['product_id'] as product_id,
+    day
+    from log.cl_filmora_win where logitem='app_launch' and devid is not null   and day <='__DAY1__' 
+    ) t1
+    group by t1.devid
         """
 
     if time_type == 'day':
@@ -278,22 +278,22 @@ if __name__ == "__main__":
         excute(sql_query=device_filmora_win_sql, sql_session=sparksession)
 
     device_filmora_mac_sql = """
-        insert overwrite table base.device_filmora_mac partition(day='__DAY1__')
-        select
-        t1.wsid,
-        min(t1.day) as first_active,
-        max(t1.day) as last_active,
-        min(t1.product_id) as product_id,
-        max(t1.version) as app_version
-        from
-        (select
-        wsid,
-        params['app_version'] as version,
-        params['product_id'] as product_id,
-        day
-        from log.cl_filmora_mac where logitem='app_launch' and wsid is not null   and day <'__DAY1__' 
-        ) t1
-        group by t1.wsid
+    insert overwrite table base.device_filmora_mac partition(day='__DAY1__')
+    select
+    t1.devid,
+    min(t1.day) as first_active,
+    max(t1.day) as last_active,
+    min(t1.product_id) as product_id,
+    max(t1.version) as app_version
+    from
+    (select
+    devid,
+    params['app_version'] as version,
+    params['product_id'] as product_id,
+    day
+    from log.cl_filmora_mac where logitem='app_launch' and devid is not null   and day <='__DAY1__' 
+    ) t1
+    group by t1.devid
         """
 
     if time_type == 'day':
