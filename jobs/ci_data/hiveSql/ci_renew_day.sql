@@ -1,8 +1,8 @@
 
 
 use dbsync;
---insert overwrite  table mart.ci_member_renew_rate_day partition(expire_date='${hiveconf:expire}')
-insert  into table mart.ci_member_renew_rate_day1
+insert overwrite  table mart.ci_member_renew_rate_day partition(expire_date='${hiveconf:expire}')
+-- insert  into table mart.ci_member_renew_rate_day1
 select
 from_unixtime(t3.endtime+28800,'yyyy-MM-dd') as stat_date,
 t3.channel,
