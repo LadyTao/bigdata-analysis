@@ -21,7 +21,8 @@ do
 			first_date=`date -d "+1 day $first_date"  +"%Y-%m-%d"`
 	else
 		echo 'calculate the day:'+$first_date
-		hive -hiveconf expire=$first_date -f   /usr/local/bigdata/jobtaskh0/shelljob/ci_data/ci_renew_day.sql
+		#hive -hiveconf expire=$first_date -f   /usr/local/bigdata/jobtaskh0/shelljob/ci_data/ci_renew_day.sql
+		echo 'hive calculate'
 		first_date=`date -d "+1 day $first_date"  +"%Y-%m-%d"`
 	fi
 
