@@ -303,7 +303,6 @@ if __name__ == "__main__":
     on t1.devid=t2.devid 
     where t1.devid is null
     group by t2.devid,t2.product,t2.version,t1.first_active,t1.last_active,t1.product_id,t1.app_version
-
         """
 
     if time_type == 'day':

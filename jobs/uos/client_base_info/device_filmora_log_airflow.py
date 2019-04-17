@@ -53,7 +53,6 @@ dag = DAG(
 #     schedule_interval='50 2 1 * *',
 #     dagrun_timeout=timedelta(minutes=60),
 # )
-
 # task_id也需要修改为相应的任务描述
 day_partition = SSHOperator(
     ssh_conn_id='ws@hdp-0',
