@@ -99,7 +99,7 @@ if __name__ == "__main__":
     time_type = args.time_type
     excute_date = parse(str(args.excute_day))
 
-    sqlx = '''insert overwrite table tmp.shopping_cart_filmstocks_funnel partition(day=__DAY1__)
+    sqlx = '''insert overwrite table tmp.shopping_cart_funnel partition(day=__DAY1__)
     select
 	-- 维度
 	"filmstocks" as produce,
@@ -156,12 +156,12 @@ JOIN
 	) tb1
 on tb0.site_type=tb1.site_type;
     '''
-
-    device_filmora_win_sql = job_day(date=excute_date,
-                                   moudle_sql=sqlx)
-    print("device_filmora_win_sql:", device_filmora_win_sql)
-    print("begin to insert tmp.shopping_cart_filmstocks_funnel table ")
-    insert_to_hive(sql_query=device_filmora_win_sql, sql_session=sparksession)
+    if time_type == 'day':
+        device_filmora_win_sql = job_day(date=excute_date,
+                                       moudle_sql=sqlx)
+        print("device_filmora_win_sql:", device_filmora_win_sql)
+        print("begin to insert tmp.shopping_cart_filmstocks_funnel table ")
+        insert_to_hive(sql_query=device_filmora_win_sql, sql_session=sparksession)
 
     sparksession.stop()
 
