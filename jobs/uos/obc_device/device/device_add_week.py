@@ -1,5 +1,5 @@
 # -*- coding: UTF-8 -*-
-
+# 设备新增周指标 增量计算代码
 import sys
 import time
 from pyspark import SparkContext, SparkConf
@@ -12,30 +12,6 @@ import datetime
 import calendar
 import argparse
 from dateutil.parser import parse
-
-"""
-执行uos客户端行为标签表：
-            uos_com.effect_usage，
-            uos_com.screen,
-            uos_com.total_export_times,
-            uos_com.youtube_vimeo_label,
-            base.member
-            每日分区数据插入
-
- 插入mysql 时一定要添加  --jars  --driver-class-path  任务时间类型参数：day,week,month 
-./bin/spark-submit \
---num-executors 4 \
---executor-memory 4G \
---executor-cores 4 \
---driver-memory 4G \
---driver-cores 4 \
---jars /usr/hdp/3.0.1.0-187/spark2/jars/mysql-connector-java-5.1.47.jar \
- --driver-class-path /usr/hdp/3.0.1.0-187/spark2/jars/mysql-connector-java-5.1.47.jar \
-/usr/local/bigdata/jobtaskh0/pythonjob/uos/uid_label/device_active_pyspark.py \
-day \
-2019-03-28 
-
-"""
 
 
 def excute(sql_query, sql_session):
@@ -63,12 +39,12 @@ def insert_into_mysql(sql_query, sql_session, table):
     # Saving data to a JDBC source
 
     df.write.format("jdbc") \
-        .option("url", "jdbc:mysql://10.14.1.10:3306/data_user") \
+        .option("url", "jdbc:mysql://10.14.1.10:3306/data_sale") \
         .option("driver", "com.mysql.jdbc.Driver") \
         .option("dbtable", table) \
         .option("user", "root") \
         .option("password", "ws2018") \
-        .save(mode="overwrite")
+        .save(mode="append")
     print("insert to mysql  ok ")
 
 
@@ -223,10 +199,9 @@ def job_month(date, moudle_sql):
 if __name__ == "__main__":
     SparkContext.setSystemProperty("hive.metastore.uris", "thrift://hdp-0:9083")
 
-    # 终端活跃数据，插入相关mysql
     sparksession = (SparkSession
                     .builder
-                    .appName('device_active')
+                    .appName('device_increase_add_week')
                     .enableHiveSupport()
                     .getOrCreate())
 
@@ -238,72 +213,67 @@ if __name__ == "__main__":
     time_type = args.time_type
     excute_date = parse(str(args.excute_day))
 
-    # 根据任务传入的时间类型，判断执行的任务是日任务，周任务或者月任务
-    # if time_type == 'day':
-    #     sql_str = job_day(date=excute_date, moudle_sql=moudle_sql)
-    #     print("sql_str:", sql_str)
-    #     excute(sql_query=sql_str, sql_session=sparksession)
-    # elif time_type == 'week':
-    #     sql_str = job_week(date=excute_date, moudle_sql=moudle_sql)
-    #     print("sql_str:", sql_str)
-    #     excute(sql_query=sql_str, sql_session=sparksession)
-    # else:
-    #     sql_str = job_month(date=excute_date, moudle_sql=moudle_sql)
-    #     print("sql_str:", sql_str)
-    #     excute(sql_query=sql_str, sql_session=sparksession)
+    print("begin to add data to device_increase_week")
+    increase_week_sql = """
+    select t1.*
+    from 
+    (
+             select
+            week.stat_date,
+            concat(week.stat_date,'~',date_add(week.stat_date,6)) as show_date,
+            'win' as dev_type,
+            week.app_version,
+            week.increase
+            from
+            (
+            select
+            -- fisrt_active as stat_date,
+            date_sub(next_day(date_sub(first_active,1),'MO'),7) as stat_date, -- 周的第一天
+            -- concat(substr(date_sub(day,1),0,7),'-01') as stat_month,
+            app_version   ,
+            count(devid) as increase
+            from
+            base.device_filmora_win where   day= '__DAY1__'  and first_active bewteen '__DAY1__' and date_add('__DAY1__',6)  AND app_version is not null
+            group by
+            date_sub(next_day(date_sub(first_active,1),'MO'),7),
+            app_version
+            ) week  order by week.stat_date desc
+    )	t1
+    union all
+    select t2.*
+    from
+    (
+             select
+            week.stat_date,
+            concat(week.stat_date,'~',date_add(week.stat_date,6)) as show_date,
+            'mac' as dev_type,
+            week.app_version,
+            week.increase
+            from
+            (
+            select
+            -- fisrt_active as stat_date,
+            date_sub(next_day(date_sub(first_active,1),'MO'),7) as stat_date, -- 周的第一天
+            -- concat(substr(date_sub(day,1),0,7),'-01') as stat_month,
+            app_version   ,
+            count(devid) as increase
+            from
+            base.device_filmora_mac where   day= '__DAY1__'  and first_active bewteen '__DAY1__' and date_add('__DAY1__',6)    AND app_version is not null
+            group by
+            date_sub(next_day(date_sub(first_active,1),'MO'),7),
+            app_version
+            ) week  order by week.stat_date desc
+    ) t2
+    
+    """
+    if time_type == 'week':
+        increase_week_sql = job_week(date=excute_date,
+                           moudle_sql=increase_week_sql)
+        insert_into_mysql(sql_query=increase_week_sql, sql_session=sparksession,
+                          table="device_increase_week")
 
-    day_sql = """
-                select t1.*
-                from 
-                (select
-                day.stat_date,
-                day.stat_date as show_date,
-                'win' as dev_type,
-                day.app_version,
-                day.increase
-                from
-                (
-                select
-                last_active as stat_date,
-                -- date_sub(next_day(date_sub(day,1),'MO'),7) as stat_week,
-                -- concat(substr(date_sub(day,1),0,7),'-01') as stat_month,
-                app_version ,
-                count(devid) as increase
-                from
-                base.device_filmora_win where   day= '__DAY1__' AND app_version is not null
-                group by
-                last_active,
-                app_version
-                order by last_active desc
-                ) day  order by day.stat_date desc	) t1
-                union all	
-                select t2.*
-                from 
-                (
-                select
-                day.stat_date,
-                day.stat_date as show_date,
-                'mac' as dev_type,
-                day.app_version,
-                day.increase
-                from
-                (
-                select
-                last_active as stat_date,
-                -- date_sub(next_day(date_sub(day,1),'MO'),7) as stat_week,
-                -- concat(substr(date_sub(day,1),0,7),'-01') as stat_month,
-                app_version ,
-                count(devid) as increase
-                from
-                base.device_filmora_mac where   day= '__DAY1__' AND app_version is not null
-                group by
-                last_active,
-                app_version
-                order by last_active desc
-                ) day  order by day.stat_date desc	
-                ) t2
-        """
-    week_sql = """
+    print("begin to add data to device_active_week")
+    active_week_sql = """
             select
             t1.*
             from
@@ -323,7 +293,7 @@ if __name__ == "__main__":
                 app_version   ,
                 count(devid) as increase
                 from
-                base.device_filmora_win where   day= '__DAY1__' AND app_version is not null
+                base.device_filmora_win where   day= '__DAY1__' AND last_active bewteen date_sub('__DAY1__',7) and date_sub('__DAY1__',1)  AND app_version is not null
                 group by
                 date_sub(next_day(date_sub(last_active,1),'MO'),7),
                 app_version
@@ -348,132 +318,20 @@ if __name__ == "__main__":
                 app_version   ,
                 count(devid) as increase
                 from
-                base.device_filmora_mac where   day= '__DAY1__' AND app_version is not null
+                base.device_filmora_mac where   day= '__DAY1__'  AND last_active bewteen date_sub('__DAY1__',7) and date_sub('__DAY1__',1)  AND  app_version is not null
                 group by
                 date_sub(next_day(date_sub(last_active,1),'MO'),7),
                 app_version
                 ) week  order by week.stat_date desc
             ) t2
     """
-    month_sql = """
-        select 
-        t1.* 
-        from
-        (   select
-        month.stat_date,
-        concat(month.stat_date,'~',date_sub(add_months(month.stat_date,1),1)) as show_date,
-       'win' as dev_type,
-        month.app_version,
-        month.increase
-        from
-        (
-        select
-        trunc(last_active, 'MM') as stat_date, -- 月的第一天
-        app_version ,
-        count(devid) as increase
-        from
-       base.device_filmora_win where   day= '__DAY1__' AND app_version is not null
-        group by
-        trunc(last_active, 'MM'),  
-        app_version
-        ) month  order by month.stat_date desc
-        
-        ) t1
-        union all
-        select 
-        t2.*
-        from
-        (
-           select
-        month.stat_date,
-        concat(month.stat_date,'~',date_sub(add_months(month.stat_date,1),1)) as show_date,
-       'mac' as dev_type,
-        month.app_version,
-        month.increase
-        from
-        (
-        select
-        trunc(last_active, 'MM') as stat_date, -- 月的第一天
-        app_version ,
-        count(devid) as increase
-        from
-       base.device_filmora_mac where   day= '__DAY1__' AND app_version is not null
-        group by
-        trunc(last_active, 'MM'),  
-        app_version
-        ) month  order by month.stat_date desc
-        
-        ) t2
-        
-    """
 
-    total_sql = """
-        select
-        t1.*
-        from
-        (
-            select 
-            stat_date,
-            stat_date as show_date,
-            total.dev_type,
-            total.app_version,
-            total.increase as total_amount
-            from 
-            (
-            select 
-            first_active as stat_date,
-            app_version,
-            'win' as dev_type,
-            count(devid) as increase
-            from base.device_filmora_win where app_version is not null and day='__DAY1__'
-            GROUP BY first_active,app_version,'win'
-            ) total
-        ) t1
-        union all
-        select 
-        t2.*
-        from
-        (
-            select 
-            stat_date,
-            stat_date as show_date,
-            total.dev_type,
-            total.app_version,
-            total.increase as total_amount
-            from 
-            (
-            select 
-            first_active as stat_date,
-            app_version,
-            'mac' as dev_type,
-            count(devid) as increase
-            from base.device_filmora_win where app_version is not null and day='__DAY1__'
-            GROUP BY first_active,app_version,'mac'
-            ) total
-        ) t2
-    """
-    if time_type == 'day':
-        day_sql = job_day(date=excute_date,
-                          moudle_sql=day_sql)
-        insert_into_mysql(sql_query=day_sql, sql_session=sparksession,
-                          table="device_active_day")
 
-    if time_type == 'day':
-        week_sql = job_day(date=excute_date,
-                           moudle_sql=week_sql)
-        insert_into_mysql(sql_query=week_sql, sql_session=sparksession,
+
+    if time_type == 'week':
+        active_week_sql = job_week(date=excute_date,
+                           moudle_sql=active_week_sql)
+        insert_into_mysql(sql_query=active_week_sql, sql_session=sparksession,
                           table="device_active_week")
 
-    if time_type == 'day':
-        month_sql = job_day(date=excute_date,
-                            moudle_sql=month_sql)
-        insert_into_mysql(sql_query=month_sql, sql_session=sparksession,
-                          table="device_active_month")
-
-    if time_type == 'day':
-        total_sql = job_day(date=excute_date,
-                            moudle_sql=total_sql)
-        print("begin to insert table device_total_day")
-        insert_into_mysql(sql_query=total_sql, sql_session=sparksession,
-                          table="device_total_day")
     sparksession.stop()
