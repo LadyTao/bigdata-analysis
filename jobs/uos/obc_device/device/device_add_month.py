@@ -216,7 +216,7 @@ if __name__ == "__main__":
 
     print("begin to add data to device_increase_month")
     increase_month_sql = """
-    select
+   select
     t1.*
     from
     (
@@ -233,14 +233,15 @@ if __name__ == "__main__":
         app_version ,
         count(devid) as increase                                                 
         from
-       base.device_filmora_win where   day= '__DAY1__'  and first_active  between  'trunc(add_months('__DAY1__' ,-1),'MM')' and  date_sub('__DAY1__',1) AND app_version is not null
+       base.device_filmora_win where   day= date_sub('__DAY1__',1)  and first_active  between  trunc(add_months('__DAY1__' ,-1),'MM') and  date_sub('__DAY1__',1) AND app_version is not null
         group by
         trunc(first_active, 'MM'),  
         app_version
         ) month  order by month.stat_date desc
     ) t1
     union all
-    select t2.*
+    select 
+	t2.*
     from
     (
         select
@@ -256,7 +257,7 @@ if __name__ == "__main__":
         app_version ,
         count(devid) as increase
         from
-       base.device_filmora_mac where   day= '__DAY1__' and first_active  between  'trunc(add_months('__DAY1__' ,-1),'MM')' and  date_sub('__DAY1__',1) AND app_version is not null
+       base.device_filmora_mac where   day= date_sub('__DAY1__',1) and first_active  between  trunc(add_months('__DAY1__' ,-1),'MM') and  date_sub('__DAY1__',1) AND app_version is not null
         group by
         trunc(first_active, 'MM'),  
         app_version
@@ -264,7 +265,7 @@ if __name__ == "__main__":
     ) t2
         
     """
-    if time_type == 'month':
+    if time_type == 'day':
         increase_month_sql = job_day(date=excute_date,
                             moudle_sql=increase_month_sql)
         insert_into_mysql(sql_query=increase_month_sql, sql_session=sparksession,
@@ -289,7 +290,7 @@ if __name__ == "__main__":
         app_version ,
         count(devid) as increase
         from
-       base.device_filmora_win where   day= '__DAY1__'  AND active_day between 'trunc(add_months('__DAY1__' ,-1),'MM')' and date_sub('___DAY1__') AND app_version is not null
+       base.device_filmora_win where   day= date_sub('__DAY1__',1)  AND last_active between trunc(add_months('__DAY1__' ,-1),'MM') and date_sub('__DAY1__',1) AND app_version is not null
         group by
         trunc(last_active, 'MM'),  
         app_version
@@ -314,7 +315,7 @@ if __name__ == "__main__":
         app_version ,
         count(devid) as increase
         from
-       base.device_filmora_mac where   day= '__DAY1__' AND active_day between 'trunc(add_months('__DAY1__' ,-1),'MM')' and date_sub('___DAY1__') AND  app_version is not null
+       base.device_filmora_mac where   day= date_sub('__DAY1__',1) AND last_active between trunc(add_months('__DAY1__' ,-1),'MM') and date_sub('__DAY1__',1) AND  app_version is not null
         group by
         trunc(last_active, 'MM'),  
         app_version
@@ -325,7 +326,7 @@ if __name__ == "__main__":
     """
 
 
-    if time_type == 'month':
+    if time_type == 'day':
         active_month_sql = job_day(date=excute_date,
                             moudle_sql=active_month_sql)
         insert_into_mysql(sql_query=active_month_sql, sql_session=sparksession,

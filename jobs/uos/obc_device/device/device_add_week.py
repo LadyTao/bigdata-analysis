@@ -215,7 +215,8 @@ if __name__ == "__main__":
 
     print("begin to add data to device_increase_week")
     increase_week_sql = """
-    select t1.*
+    select 
+    t1.*
     from 
     (
              select
@@ -233,7 +234,7 @@ if __name__ == "__main__":
             app_version   ,
             count(devid) as increase
             from
-            base.device_filmora_win where   day= '__DAY1__'  and first_active bewteen '__DAY1__' and date_add('__DAY1__',6)  AND app_version is not null
+            base.device_filmora_win where   day= '__DAY1__'  and  first_active between date_sub('__DAY1__' ,7) and date_sub('__DAY1__' ,1)  AND app_version is not null
             group by
             date_sub(next_day(date_sub(first_active,1),'MO'),7),
             app_version
@@ -258,7 +259,7 @@ if __name__ == "__main__":
             app_version   ,
             count(devid) as increase
             from
-            base.device_filmora_mac where   day= '__DAY1__'  and first_active bewteen '__DAY1__' and date_add('__DAY1__',6)    AND app_version is not null
+            base.device_filmora_mac where   day= '__DAY1__'  and first_active between date_sub('__DAY1__' ,7) and date_sub('__DAY1__' ,1)   AND app_version is not null
             group by
             date_sub(next_day(date_sub(first_active,1),'MO'),7),
             app_version
@@ -266,9 +267,10 @@ if __name__ == "__main__":
     ) t2
     
     """
-    if time_type == 'week':
-        increase_week_sql = job_week(date=excute_date,
+    if time_type == 'day':
+        increase_week_sql = job_day(date=excute_date,
                            moudle_sql=increase_week_sql)
+        print("increase_week_sql:",increase_week_sql)
         insert_into_mysql(sql_query=increase_week_sql, sql_session=sparksession,
                           table="device_increase_week")
 
@@ -293,7 +295,7 @@ if __name__ == "__main__":
                 app_version   ,
                 count(devid) as increase
                 from
-                base.device_filmora_win where   day= '__DAY1__' AND last_active bewteen date_sub('__DAY1__',7) and date_sub('__DAY1__',1)  AND app_version is not null
+                base.device_filmora_win where   day= '__DAY1__' AND  last_active between date_sub('__DAY1__' ,7) and date_sub('__DAY1__' ,1)  AND app_version is not null
                 group by
                 date_sub(next_day(date_sub(last_active,1),'MO'),7),
                 app_version
@@ -318,7 +320,7 @@ if __name__ == "__main__":
                 app_version   ,
                 count(devid) as increase
                 from
-                base.device_filmora_mac where   day= '__DAY1__'  AND last_active bewteen date_sub('__DAY1__',7) and date_sub('__DAY1__',1)  AND  app_version is not null
+                base.device_filmora_mac where   day= '__DAY1__'  AND   last_active between date_sub('__DAY1__' ,7) and date_sub('__DAY1__' ,1) AND  app_version is not null
                 group by
                 date_sub(next_day(date_sub(last_active,1),'MO'),7),
                 app_version
@@ -328,9 +330,10 @@ if __name__ == "__main__":
 
 
 
-    if time_type == 'week':
-        active_week_sql = job_week(date=excute_date,
+    if time_type == 'day':
+        active_week_sql = job_day(date=excute_date,
                            moudle_sql=active_week_sql)
+        print("active_week_sql:",active_week_sql)
         insert_into_mysql(sql_query=active_week_sql, sql_session=sparksession,
                           table="device_active_week")
 

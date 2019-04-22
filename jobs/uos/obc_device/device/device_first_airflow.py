@@ -43,7 +43,7 @@ dag = DAG(
 # )
 
 # task_id也需要修改为相应的任务描述
-day_partition1 = SSHOperator(
+device_active_first = SSHOperator(
     ssh_conn_id='ws@hdp-0',
     task_id='device_active_first',
     command=" cd /usr/local/bigdata/jobtaskh0/pythonjob/pyspark_template/ && spark-submit \
@@ -60,7 +60,7 @@ day_partition1 = SSHOperator(
     dag=dag
 )
 
-day_partition2 = SSHOperator(
+device_increase_first = SSHOperator(
     ssh_conn_id='ws@hdp-0',
     task_id='device_increase_first',
     command=" cd /usr/local/bigdata/jobtaskh0/pythonjob/pyspark_template/ && spark-submit \
