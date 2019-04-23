@@ -233,7 +233,7 @@ if __name__ == "__main__":
         app_version ,
         count(devid) as increase                                                 
         from
-       base.device_filmora_win where   day= date_sub('__DAY1__',1)  and first_active  between  trunc(add_months('__DAY1__' ,-1),'MM') and  date_sub('__DAY1__',1) AND app_version is not null
+       base.device_filmora_win where   day= '__DAY1__'  and first_active  between  trunc(add_months('__DAY1__' ,-1),'MM') and  date_sub('__DAY1__',1) AND app_version is not null
         group by
         trunc(first_active, 'MM'),  
         app_version
@@ -257,7 +257,7 @@ if __name__ == "__main__":
         app_version ,
         count(devid) as increase
         from
-       base.device_filmora_mac where   day= date_sub('__DAY1__',1) and first_active  between  trunc(add_months('__DAY1__' ,-1),'MM') and  date_sub('__DAY1__',1) AND app_version is not null
+       base.device_filmora_mac where   day= '__DAY1__' and first_active  between  trunc(add_months('__DAY1__' ,-1),'MM') and  date_sub('__DAY1__',1) AND app_version is not null
         group by
         trunc(first_active, 'MM'),  
         app_version
@@ -290,7 +290,7 @@ if __name__ == "__main__":
         app_version ,
         count(devid) as increase
         from
-       base.device_filmora_win where   day= date_sub('__DAY1__',1)  AND last_active between trunc(add_months('__DAY1__' ,-1),'MM') and date_sub('__DAY1__',1) AND app_version is not null
+       base.device_filmora_win where   day= '__DAY1__'  AND last_active between trunc(add_months('__DAY1__' ,-1),'MM') and date_sub('__DAY1__',1) AND app_version is not null
         group by
         trunc(last_active, 'MM'),  
         app_version
@@ -315,7 +315,7 @@ if __name__ == "__main__":
         app_version ,
         count(devid) as increase
         from
-       base.device_filmora_mac where   day= date_sub('__DAY1__',1) AND last_active between trunc(add_months('__DAY1__' ,-1),'MM') and date_sub('__DAY1__',1) AND  app_version is not null
+       base.device_filmora_mac where   day= '__DAY1__' AND last_active between trunc(add_months('__DAY1__' ,-1),'MM') and date_sub('__DAY1__',1) AND  app_version is not null
         group by
         trunc(last_active, 'MM'),  
         app_version
