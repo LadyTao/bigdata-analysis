@@ -18,29 +18,29 @@ args = {
 }
 
 # day 类型的任务 根据相应的类型，打开或者关闭相关的注释
+# dag = DAG(
+#     dag_id='device_add_month_airflow',
+#     default_args=args,
+#     schedule_interval='50 5 * * *',
+#     dagrun_timeout=timedelta(minutes=60),
+# )
+#
+# # # week 类型的任务
+# # dag = DAG(
+# #     dag_id='airflow_pyspark_template_week',
+# #     default_args=args,
+# #     schedule_interval='50 6 * * 1',
+# #     dagrun_timeout=timedelta(minutes=60),
+# # )
+# #
+# #
+# month 类型的任务 dag_id 需要修改
 dag = DAG(
     dag_id='device_add_month_airflow',
     default_args=args,
-    schedule_interval='50 5 * * *',
+    schedule_interval='50 6 1 * *',
     dagrun_timeout=timedelta(minutes=60),
 )
-
-# # week 类型的任务
-# dag = DAG(
-#     dag_id='airflow_pyspark_template_week',
-#     default_args=args,
-#     schedule_interval='50 6 * * 1',
-#     dagrun_timeout=timedelta(minutes=60),
-# )
-#
-#
-# # month 类型的任务 dag_id 需要修改
-# dag = DAG(
-#     dag_id='airflow_pyspark_template_week',
-#     default_args=args,
-#     schedule_interval='50 2 1 * *',
-#     dagrun_timeout=timedelta(minutes=60),
-# )
 
 # task_id也需要修改为相应的任务描述
 
@@ -56,7 +56,7 @@ month_partition = SSHOperator(
                 --jars /usr/hdp/3.0.1.0-187/spark2/jars/mysql-connector-java-5.1.47.jar \
                 --driver-class-path /usr/hdp/3.0.1.0-187/spark2/jars/mysql-connector-java-5.1.47.jar \
                 /usr/local/bigdata/jobtaskh0/pythonjob/uos/device/device_add_month.py \
-                month \
+                day \
                 {{ ds_nodash }} ",
     dag=dag
 )
