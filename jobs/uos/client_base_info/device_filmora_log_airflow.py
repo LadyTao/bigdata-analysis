@@ -71,5 +71,26 @@ day_partition = SSHOperator(
     dag=dag
 )
 
+
+# --num-executors 50 \
+# --executor-memory 4G \
+# --executor-cores 4 \
+# --driver-memory 1G \
+# --driver-cores 4 \
+# --conf spark.default.parallelism=1000\
+# --conf spark.storage.memoryFraction=0.5\
+# --conf spark.shuffle.memoryFraction=0.3\
+'''
+50-100
+4-8  num*memory 1/3-1/2
+2-4  num*core  cpu1/3-1/2
+有无collect
+2-4
+500-1000   num*core* 2-3
+0.6
+0.2
+'''
+
+
 if __name__ == "__main__":
     dag.cli()

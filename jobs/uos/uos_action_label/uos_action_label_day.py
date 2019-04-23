@@ -400,18 +400,108 @@ if __name__ == "__main__":
     """
 
 
-    member_sql ="""
+    # member_sql ="""
+    #     insert overwrite table base.member partition(day= '__DAY1__')
+    #     select wsid,min(day) as first_active,max(day) last_active  from
+    #     (
+    #     select wsid,day from log.cl_filmora_win where day < '__DAY1__'
+    #     and logtype= 'base' and logitem='login_status' and wsid is not null
+    #     union all
+    #     select wsid,day from log.cl_filmora_mac where day < '__DAY1__'
+    #     and logtype= 'base' and logitem='login_status'  and wsid is not null )
+    #     m group by wsid
+    #
+    #     """
+
+    member_sql = """
         insert overwrite table base.member partition(day= '__DAY1__') 
-        select wsid,min(day) as first_active,max(day) last_active  from 
+        select 
+        cast(t1.wsid as string),
+        t1.first_active,
+        if(t2.day is not null,t2.day,t1.last_active) as last_active
+        from
         (
-        select wsid,day from log.cl_filmora_win where day < '__DAY1__'
-        and logtype= 'base' and logitem='login_status' and wsid is not null
+        select 
+        wsid,first_active,last_active
+        from base.member 
+        where day = date_sub('__DAY1__',1)
+        )t1
+        left join 
+        (
+        select
+        wsid as sid,
+        day
+        from
+        log.cl_filmora_mac 
+        where day = '__DAY1__' and wsid is not null and logtype= 'base' and logitem='login_status' 
+        )t2
+        on t1.wsid=t2.sid
+        left join 
+        (
+        select
+        wsid as sid,
+        day
+        from
+        log.cl_filmora_win 
+        where day = '__DAY1__' and wsid is not null and logtype= 'base' and logitem='login_status' 
+        )t3
+        on t1.wsid=t3.sid
+        group by t1.wsid,t1.first_active,t1.last_active,t2.day,t3.day
         union all
-        select wsid,day from log.cl_filmora_mac where day < '__DAY1__'
-        and logtype= 'base' and logitem='login_status'  and wsid is not null ) 
-        m group by wsid  
-        
-        """
+        select 
+        cast(t1.wsid as string),
+        t1.day as first_active,
+        t1.day as last_active
+        from
+        (
+        select
+        wsid,
+        day
+        from
+        log.cl_filmora_win 
+        where day = '__DAY1__' and wsid is not null and logtype= 'base' and logitem='login_status' 
+        )t1
+        left join 
+        (
+        select 
+        wsid,
+        first_active,last_active
+        from base.member 
+        where day = date_sub('__DAY1__',1)
+        )t2
+        on t1.wsid=t2.wsid 
+        where t2.wsid is null
+        group by t1.wsid,t1.day,t2.first_active,t2.last_active
+        union all
+        select 
+        cast(t1.wsid as string),
+        t1.day as first_active,
+        t1.day as last_active
+        from
+        (
+        select
+        wsid,
+        day
+        from
+        log.cl_filmora_mac 
+        where day = '__DAY1__' and wsid is not null and logtype= 'base' and logitem='login_status' 
+        )t1
+        left join 
+        (
+        select 
+        wsid,
+        first_active,last_active
+        from base.member 
+        where day = date_sub('__DAY1__',1)
+        )t2
+        on t1.wsid=t2.wsid 
+        where t2.wsid is null
+        group by t1.wsid,t1.day,t2.first_active,t2.last_active
+            
+    """
+
+
+
 
     if time_type == 'day':
         effect_usage_sql = job_day(date=excute_date,
