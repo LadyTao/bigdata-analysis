@@ -223,7 +223,7 @@ if __name__ == "__main__":
         select
         month.stat_date,
         concat(month.stat_date,'~',date_sub(add_months(month.stat_date,1),1)) as show_date,
-       'win' as dev_type,
+       'filmora_win' as dev_type,
         month.app_version,
         month.increase
         from
@@ -247,7 +247,7 @@ if __name__ == "__main__":
         select
         month.stat_date,
         concat(month.stat_date,'~',date_sub(add_months(month.stat_date,1),1)) as show_date,
-       'mac' as dev_type,
+       'filmora_mac' as dev_type,
         month.app_version,
         month.increase
         from
@@ -265,7 +265,7 @@ if __name__ == "__main__":
     ) t2
         
     """
-    if time_type == 'day':
+    if time_type == 'month':
         increase_month_sql = job_day(date=excute_date,
                             moudle_sql=increase_month_sql)
         insert_into_mysql(sql_query=increase_month_sql, sql_session=sparksession,
@@ -280,7 +280,7 @@ if __name__ == "__main__":
         (   select
         month.stat_date,
         concat(month.stat_date,'~',date_sub(add_months(month.stat_date,1),1)) as show_date,
-       'win' as dev_type,
+       'filmora_win' as dev_type,
         month.app_version,
         month.increase
         from
@@ -305,7 +305,7 @@ if __name__ == "__main__":
            select
         month.stat_date,
         concat(month.stat_date,'~',date_sub(add_months(month.stat_date,1),1)) as show_date,
-       'mac' as dev_type,
+       'filmora_mac' as dev_type,
         month.app_version,
         month.increase
         from
@@ -326,7 +326,7 @@ if __name__ == "__main__":
     """
 
 
-    if time_type == 'day':
+    if time_type == 'month':
         active_month_sql = job_day(date=excute_date,
                             moudle_sql=active_month_sql)
         insert_into_mysql(sql_query=active_month_sql, sql_session=sparksession,

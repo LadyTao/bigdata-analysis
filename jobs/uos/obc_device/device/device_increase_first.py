@@ -221,7 +221,7 @@ if __name__ == "__main__":
                 select
                 day.stat_date,
                 day.stat_date as show_date,
-                'win' as dev_type,
+                'filmora_win' as dev_type,
                 day.app_version,
                 day.increase
                 from
@@ -248,7 +248,7 @@ if __name__ == "__main__":
                 select
                 day.stat_date,
                 day.stat_date as show_date,
-                'mac' as dev_type,
+                'filmora_mac' as dev_type,
                 day.app_version,
                 day.increase
                 from
@@ -276,7 +276,7 @@ if __name__ == "__main__":
              select
             week.stat_date,
             concat(week.stat_date,'~',date_add(week.stat_date,6)) as show_date,
-            'win' as dev_type,
+            'filmora_win' as dev_type,
             week.app_version,
             week.increase
             from
@@ -301,7 +301,7 @@ if __name__ == "__main__":
              select
             week.stat_date,
             concat(week.stat_date,'~',date_add(week.stat_date,6)) as show_date,
-            'mac' as dev_type,
+            'filmora_mac' as dev_type,
             week.app_version,
             week.increase
             from
@@ -329,7 +329,7 @@ if __name__ == "__main__":
         select
         month.stat_date,
         concat(month.stat_date,'~',date_sub(add_months(month.stat_date,1),1)) as show_date,
-       'win' as dev_type,
+       'filmora_win' as dev_type,
         month.app_version,
         month.increase
         from
@@ -352,7 +352,7 @@ if __name__ == "__main__":
         select
         month.stat_date,
         concat(month.stat_date,'~',date_sub(add_months(month.stat_date,1),1)) as show_date,
-       'mac' as dev_type,
+       'filmora_mac' as dev_type,
         month.app_version,
         month.increase
         from

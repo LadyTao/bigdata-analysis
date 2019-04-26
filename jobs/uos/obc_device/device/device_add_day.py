@@ -40,7 +40,7 @@ def insert_into_mysql(sql_query, sql_session, table):
     # Saving data to a JDBC source
 
     df.write.format("jdbc") \
-        .option("url", "jdbc:mysql://10.14.1.10:3306/data_sale") \
+        .option("url", "jdbc:mysql://10.14.1.10:3306/data_user") \
         .option("driver", "com.mysql.jdbc.Driver") \
         .option("dbtable", table) \
         .option("user", "root") \
@@ -223,7 +223,7 @@ if __name__ == "__main__":
                         select
                         day.stat_date,
                         day.stat_date as show_date,
-                        'win' as dev_type,
+                        'filmora_win' as dev_type,
                         day.app_version,
                         day.increase
                         from
@@ -250,7 +250,7 @@ if __name__ == "__main__":
                         select
                         day.stat_date,
                         day.stat_date as show_date,
-                        'mac' as dev_type,
+                        'filmora_mac' as dev_type,
                         day.app_version,
                         day.increase
                         from
@@ -286,7 +286,7 @@ if __name__ == "__main__":
                 (select
                 day.stat_date,
                 day.stat_date as show_date,
-                'win' as dev_type,
+                'filmora_win' as dev_type,
                 day.app_version,
                 day.increase
                 from
@@ -311,7 +311,7 @@ if __name__ == "__main__":
                 select
                 day.stat_date,
                 day.stat_date as show_date,
-                'mac' as dev_type,
+                'filmora_mac' as dev_type,
                 day.app_version,
                 day.increase
                 from
