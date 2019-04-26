@@ -39,7 +39,7 @@ def insert_into_mysql(sql_query, sql_session, table):
     # Saving data to a JDBC source
 
     df.write.format("jdbc") \
-        .option("url", "jdbc:mysql://10.14.1.10:3306/data_sale") \
+        .option("url", "jdbc:mysql://10.14.1.10:3306/data_user") \
         .option("driver", "com.mysql.jdbc.Driver") \
         .option("dbtable", table) \
         .option("user", "root") \
@@ -222,7 +222,7 @@ if __name__ == "__main__":
              select
             week.stat_date,
             concat(week.stat_date,'~',date_add(week.stat_date,6)) as show_date,
-            'win' as dev_type,
+            'filmora_win' as dev_type,
             week.app_version,
             week.increase
             from
@@ -247,7 +247,7 @@ if __name__ == "__main__":
              select
             week.stat_date,
             concat(week.stat_date,'~',date_add(week.stat_date,6)) as show_date,
-            'mac' as dev_type,
+            'filmora_mac' as dev_type,
             week.app_version,
             week.increase
             from
@@ -267,7 +267,7 @@ if __name__ == "__main__":
     ) t2
     
     """
-    if time_type == 'day':
+    if time_type == 'week':
         increase_week_sql = job_day(date=excute_date,
                            moudle_sql=increase_week_sql)
         print("increase_week_sql:",increase_week_sql)
@@ -283,7 +283,7 @@ if __name__ == "__main__":
                     select
                 week.stat_date,
                 concat(week.stat_date,'~',date_add(week.stat_date,6)) as show_date,
-                'win' as dev_type,
+                'filmora_win' as dev_type,
                 week.app_version,
                 week.increase
                 from
@@ -308,7 +308,7 @@ if __name__ == "__main__":
             (        select
                 week.stat_date,
                 concat(week.stat_date,'~',date_add(week.stat_date,6)) as show_date,
-                'mac' as dev_type,
+                'filmora_mac' as dev_type,
                 week.app_version,
                 week.increase
                 from
@@ -330,7 +330,7 @@ if __name__ == "__main__":
 
 
 
-    if time_type == 'day':
+    if time_type == 'week':
         active_week_sql = job_day(date=excute_date,
                            moudle_sql=active_week_sql)
         print("active_week_sql:",active_week_sql)
