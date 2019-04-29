@@ -68,7 +68,7 @@ def insert_into_mysql(sql_query, sql_session, table):
         .option("dbtable", table) \
         .option("user", "root") \
         .option("password", "ws2018") \
-        .save(mode="overwrite")
+        .save(mode="append")
     print("insert to mysql  ok ")
 
 
