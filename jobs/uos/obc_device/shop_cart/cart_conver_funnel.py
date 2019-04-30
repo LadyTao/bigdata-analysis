@@ -12,7 +12,7 @@ import datetime
 import calendar
 import argparse
 from dateutil.parser import parse
-logging.getLogger("org").setLevel("ERROR")
+
 """
 执行uos客户端行为标签表：
             uos_com.effect_usage，
@@ -79,7 +79,7 @@ def insert_into_mysql(sql_query, sql_session, table):
         .option("dbtable", table) \
         .option("user", "root") \
         .option("password", "ws2018") \
-        .save(mode="overwrite")
+        .save(mode="append")
     print("insert to mysql  table: " + table + "   succeed!!!")
 
 
@@ -95,6 +95,7 @@ def day(date, moudle_sql):
         days=1)).strftime('%Y-%m-%d')
     moudle_sql = moudle_sql.replace('__DAY1__', str(date)).replace('__DAY2__',
                                                                    str(date))
+    return moudle_sql
 
 
 def week(date, moudle_sql):
@@ -104,13 +105,10 @@ def week(date, moudle_sql):
     :param moudle_sql:
     :return:
     """
-
-    date_start = (datetime.datetime.strptime(date,
-                                             '%Y-%m-%d') - datetime.timedelta(
-        days=7)).strftime('%Y-%m-%d')
-    date_end = (datetime.datetime.strptime(date,
-                                           '%Y-%m-%d') - datetime.timedelta(
-        days=1)).strftime('%Y-%m-%d')
+    print("%%%%%%%%%%%%%%%%%%%%%%%", type(date))
+    date_start = (date - datetime.timedelta(
+        days=6)).strftime('%Y-%m-%d')
+    date_end = date.strftime('%Y-%m-%d')
 
     moudle_sql = moudle_sql.replace('__DAY1__', str(date_start)).replace(
         '__DAY2__', str(date_end))
@@ -125,13 +123,11 @@ def month(date, moudle_sql):
     :return:
     """
 
-    tmp_date = datetime.datetime.strptime(date, '%Y-%m-%d')
+    tmp_date = date
     print(tmp_date)
-    date_start = datetime.datetime(tmp_date.year, tmp_date.month - 1,
+    date_start = datetime.datetime(tmp_date.year, tmp_date.month,
                                    1).strftime('%Y-%m-%d')
-    date_end = (datetime.datetime(tmp_date.year, tmp_date.month,
-                                  1) - datetime.timedelta(1)).strftime(
-        '%Y-%m-%d')
+    date_end = tmp_date.strftime('%Y-%m-%d')
     moudle_sql = moudle_sql.replace('__DAY1__', str(date_start)).replace(
         '__DAY2__', str(date_end))
     return moudle_sql
@@ -232,7 +228,7 @@ if __name__ == "__main__":
     time_type = args.time_type
     excute_date = parse(str(args.excute_day))
 
-    sql_day_filmstocks = '''insert into table `tmp`.`shopping_cart_funnel` partition(stat_date="__DAY1__")
+    sql_day_filmstocks = '''insert into table `base`.`shopping_cart_funnel` partition(day="__DAY1__")
     select
     "__DAY1__" as show_date,
     "filmstocks" as produce,
@@ -243,12 +239,12 @@ if __name__ == "__main__":
     round(succeed_num / (succeed_num + falied_num), 4) as pay_succeed_rate,
     round(succeed_num / generate_num, 4) as pay_convert_rate 
 from
-    (SELECT         
+    (SELECT
         site_type,
-        count(if(url like "%plan.html", wsid, null)) as plan_num,
-        count(distinct if(url like "%plan.html", wsid, null)) as plan_user_num,
-        count(if(url like "%/pay/checkout.html%", wsid, null)) as checkout_num,
-        count(distinct if(url like "%/pay/checkout.html%", wsid, null)) as checkout_user_num
+        count(if(url like "%plan.html", devid, null)) as plan_num,
+        count(distinct if(url like "%plan.html", devid, null)) as plan_user_num,
+        count(if(url like "%/pay/checkout.html%", devid, null)) as checkout_num,
+        count(distinct if(url like "%/pay/checkout.html%", devid, null)) as checkout_user_num
     from
         (select             
             case when cid=10701 then "Filmstocks英语站"
@@ -259,7 +255,7 @@ from
             when cid=10706 then "Filmstocks日语站"
             when cid=10707 then "Filmstocks意大利语站" end as site_type,
             url,
-            wsid
+            devid
             from log.wl_filmstocks_com
         where day="__DAY1__" and cid in (10701, 10702, 10703, 10704, 10705, 10706, 10707) and (url like "%plan.html" or url like "%/pay/checkout.html%"))x0
     group by site_type
@@ -267,7 +263,7 @@ from
 JOIN
     (select         
         site_type,
-        count(*) as generate_num,
+        count(distinct order_no) as generate_num,
         count(distinct if(status in ("10", "20"), order_no, null)) as succeed_num,
         count(distinct if(status="40", order_no, null)) as falied_num,
         count(distinct if(status in ("1", "50"),order_no,null)) as unpay_num
@@ -287,7 +283,7 @@ JOIN
 on tb0.site_type=tb1.site_type
 '''
 
-    sql_week_filmstocks = '''insert into table `tmp`.`shopping_cart_funnel` partition(stat_date="__DAY1__")
+    sql_week_filmstocks = '''insert into table `base`.`shopping_cart_funnel` partition(day="__DAY1__")
     select
         concat("__DAY1__","~","__DAY2__") as show_date,
         "filmstocks" as produce,
@@ -300,10 +296,10 @@ on tb0.site_type=tb1.site_type
     from
         (SELECT             
             site_type,
-            count(if(url like "%plan.html", wsid, null)) as plan_num,
-            count(distinct if(url like "%plan.html", wsid, null)) as plan_user_num,
-            count(if(url like "%/pay/checkout.html%", wsid, null)) as checkout_num,
-            count(distinct if(url like "%/pay/checkout.html%", wsid, null)) as checkout_user_num
+            count(if(url like "%plan.html", devid, null)) as plan_num,
+            count(distinct if(url like "%plan.html", devid, null)) as plan_user_num,
+            count(if(url like "%/pay/checkout.html%", devid, null)) as checkout_num,
+            count(distinct if(url like "%/pay/checkout.html%", devid, null)) as checkout_user_num
         from
             (select                
                 case when cid=10701 then "Filmstocks英语站"
@@ -314,7 +310,7 @@ on tb0.site_type=tb1.site_type
                 when cid=10706 then "Filmstocks日语站"
                 when cid=10707 then "Filmstocks意大利语站" end as site_type,
                 url,
-                wsid
+                devid
             from log.wl_filmstocks_com
             where day between "__DAY1__" and "__DAY2__" and cid in (10701, 10702, 10703, 10704, 10705, 10706, 10707) and (url like "%plan.html" or url like "%/pay/checkout.html%"))x0
         group by site_type
@@ -322,7 +318,7 @@ on tb0.site_type=tb1.site_type
     JOIN
         (select            
             site_type,
-            count(*) as generate_num,
+            count(distinct order_no) as generate_num,
             count(distinct if(status in ("10", "20"), order_no, null)) as succeed_num,
             count(distinct if(status="40", order_no, null)) as falied_num,
             count(distinct if(status in ("1", "50"),order_no,null)) as unpay_num
@@ -341,7 +337,7 @@ on tb0.site_type=tb1.site_type
         ) tb1
     on tb0.site_type=tb1.site_type'''
 
-    sql_month_filmstocks = '''insert into table `tmp`.`shopping_cart_funnel` partition(stat_date="__DAY1__")
+    sql_month_filmstocks = '''insert into table `base`.`shopping_cart_funnel` partition(day="__DAY1__")
     select
         concat("__DAY1__", "~", "__DAY2__") as show_date, 
         "filmstocks" as produce,
@@ -355,10 +351,10 @@ on tb0.site_type=tb1.site_type
         (SELECT
             "__DAY1__" as day,
             site_type,
-            count(if(url like "%plan.html", wsid, null)) as plan_num,
-            count(distinct if(url like "%plan.html", wsid, null)) as plan_user_num,
-            count(if(url like "%/pay/checkout.html%", wsid, null)) as checkout_num,
-            count(distinct if(url like "%/pay/checkout.html%", wsid, null)) as checkout_user_num
+            count(if(url like "%plan.html", devid, null)) as plan_num,
+            count(distinct if(url like "%plan.html", devid, null)) as plan_user_num,
+            count(if(url like "%/pay/checkout.html%", devid, null)) as checkout_num,
+            count(distinct if(url like "%/pay/checkout.html%", devid, null)) as checkout_user_num
         from
             (select
                 case when cid=10701 then "Filmstocks英语站"
@@ -369,7 +365,7 @@ on tb0.site_type=tb1.site_type
                 when cid=10706 then "Filmstocks日语站"
                 when cid=10707 then "Filmstocks意大利语站" end as site_type,
                 url,
-                wsid
+                devid
             from log.wl_filmstocks_com
         where day between "__DAY1__" and "__DAY2__" and cid in (10701, 10702, 10703, 10704, 10705, 10706, 10707) and (url like "%plan.html" or url like "%/pay/checkout.html%"))x0
         group by site_type
@@ -377,7 +373,7 @@ on tb0.site_type=tb1.site_type
     JOIN
         (select
             site_type,
-            count(*) as generate_num,
+            count(distinct order_no) as generate_num,
             count(distinct if(status in ("10", "20"), order_no, null)) as succeed_num,
             count(distinct if(status="40", order_no, null)) as falied_num,
             count(distinct if(status in ("1", "50"),order_no,null)) as unpay_num
@@ -396,7 +392,7 @@ on tb0.site_type=tb1.site_type
         ) tb1
     on tb0.site_type=tb1.site_type'''
 
-    sql_day_filmora = '''insert into table `tmp`.`shopping_cart_funnel` partition(stat_date="__DAY1__")
+    sql_day_filmora = '''insert into table `base`.`shopping_cart_funnel` partition(day="__DAY1__")
     select 
     "__DAY1__" as show_date,
     "filmora" as produce,
@@ -409,55 +405,54 @@ on tb0.site_type=tb1.site_type
     from
     (select
         site_type,
-        count(if(url like "%filmora-buy.html%" or url like "%buy-video-editor.html%", wsid, null)) as plan_num,
-        count(distinct if(url like "%filmora-buy.html%" or url like "%buy-video-editor.html%", wsid, null)) as plan_user_num,
-        count(if(url like "%checkout.html%", wsid, null)) as checkout_num,
-        count(distinct if(url like "%checkout.html%", wsid, null)) as checkout_user_num
+        count(if(url like "%filmora-buy.html%" or url like "%buy-video-editor.html%", devid, null)) as plan_num,
+        count(distinct if(url like "%filmora-buy.html%" or url like "%buy-video-editor.html%", devid, null)) as plan_user_num,
+        count(if(url like "%checkout.html%", devid, null)) as checkout_num,
+        count(distinct if(url like "%checkout.html%", devid, null)) as checkout_user_num
     from 
         (SELECT
-            url, wsid,
+            url, devid,
             case when url like "%wondershare.com/fr%" then "Wondershare法语" 
-            when url like "%wondershare.com/jp%" then "Wondershare日语" 
+            when url like "%wondershare.jp%" then "Wondershare日语" 
             when url like "%wondershare.com/de%" then "Wondershare德语" 
             when url like "%wondershare.com/es%" then "Wondershare西班牙语" 
             when url like "%wondershare.com/pt%" then "Wondershare葡萄牙语" 
             when url like "%wondershare.com/it%" then "Wondershare意大利语" 
-            when url like "%wondershare.com/net%" then "WondershareCPC英语" 
-            when url like "%wondershare.com%" then "wondershare英文站" 
-            else "others" end as site_type
+            when url like "%wondershare.net%" then "WondershareCPC英语" 
+            else "Wondershare英文站" end as site_type
         from
-            (select url, wsid from log.wl_wondershare_com where day="__DAY1__" and (url like "%filmora-buy.html%" or url like "%buy-video-editor.html%" or url like "%checkout.html%") 
+            (select url, devid from log.wl_wondershare_com where day="__DAY1__" and (url like "%filmora-buy.html%" or url like "%buy-video-editor.html%" or url like "%checkout.html%") 
             union all
-            select url, wsid from log.wl_wondershare_jp where day="__DAY1__" and (url like "%filmora-buy.html%" or url like "%buy-video-editor.html%" or url like "%checkout.html%")
+            select url, devid from log.wl_wondershare_jp where day="__DAY1__" and (url like "%filmora-buy.html%" or url like "%buy-video-editor.html%" or url like "%checkout.html%")
             union all
-            select url, wsid from log.wl_wondershare_net where day="__DAY1__" and (url like "%filmora-buy.html%" or url like "%buy-video-editor.html%" or url like "%checkout.html%")
+            select url, devid from log.wl_wondershare_net where day="__DAY1__" and (url like "%filmora-buy.html%" or url like "%buy-video-editor.html%" or url like "%checkout.html%")
             ) x0 
         )m0
     group by site_type)tb0
     join
     (select
         site_type,
-        count(*) as generate_num,
+        count(distinct order_no) as generate_num,
         count(distinct if(status in ("10", "20"), order_no, null)) as succeed_num,
         count(distinct if(status="40", order_no, null)) as falied_num,
         count(distinct if(status in ("1", "50"),order_no,null)) as unpay_num
     from (select
-            case when from_site="1" then "Wondershare英文站"
+             case when from_site="1" then "Wondershare英文站"
             when from_site="2" then "Wondershare法语"
-            when from_site="3" then "Wondershare葡萄牙语"
-            when from_site="4" then "Wondershare西班牙语"
-            when from_site="5" then "Wondershare德语"
-            when from_site="6" then "Wondershare日语"
-            when from_site="7" then "Wondershare意大利语" 
+            when from_site="3" then "Wondershare日语"
+            when from_site="4" then "Wondershare德语"
+            when from_site="5" then "Wondershare西班牙语"
+            when from_site="6" then "Wondershare葡萄牙语"
+            when from_site="7" then "Wondershare意大利语"
             when from_site="8" then "WondershareCPC英语" 
             else "others" end as site_type,
             status, order_no
         from dbsync.f_order_wx_order 
-        where origin!="2" and FROM_UNIXTIME(inputtime, "yyyy-MM-dd")="__DAY1__" and from_site in ("1","2","3","4","5","6","7","8")) x1
+        where origin!="2" and FROM_UNIXTIME(inputtime, "yyyy-MM-dd")="__DAY1__" and from_site in ("1","2","3","4","5","6","7","8") and ver=91) x1
     group by site_type) tb1
     on tb0.site_type=tb1.site_type'''
 
-    sql_week_filmora = '''insert into table `tmp`.`shopping_cart_funnel` partition(stat_date="__DAY1__")
+    sql_week_filmora = '''insert into table `base`.`shopping_cart_funnel` partition(day="__DAY1__")
         select 
     concat("__DAY1__", "~", "__DAY2__") as show_date,
     "filmora" as produce,
@@ -470,55 +465,54 @@ on tb0.site_type=tb1.site_type
     from
     (select
         site_type,
-        count(if(url like "%filmora-buy.html%" or url like "%buy-video-editor.html%", wsid, null)) as plan_num,
-        count(distinct if(url like "%filmora-buy.html%" or url like "%buy-video-editor.html%", wsid, null)) as plan_user_num,
-        count(if(url like "%checkout.html%", wsid, null)) as checkout_num,
-        count(distinct if(url like "%checkout.html%", wsid, null)) as checkout_user_num
+        count(if(url like "%filmora-buy.html%" or url like "%buy-video-editor.html%", devid, null)) as plan_num,
+        count(distinct if(url like "%filmora-buy.html%" or url like "%buy-video-editor.html%", devid, null)) as plan_user_num,
+        count(if(url like "%checkout.html%", devid, null)) as checkout_num,
+        count(distinct if(url like "%checkout.html%", devid, null)) as checkout_user_num
     from 
         (SELECT
-            url, wsid,
+            url, devid,
             case when url like "%wondershare.com/fr%" then "Wondershare法语" 
-            when url like "%wondershare.com/jp%" then "Wondershare日语" 
+            when url like "%wondershare.jp%" then "Wondershare日语" 
             when url like "%wondershare.com/de%" then "Wondershare德语" 
             when url like "%wondershare.com/es%" then "Wondershare西班牙语" 
             when url like "%wondershare.com/pt%" then "Wondershare葡萄牙语" 
             when url like "%wondershare.com/it%" then "Wondershare意大利语" 
-            when url like "%wondershare.com/net%" then "WondershareCPC英语" 
-            when url like "%wondershare.com%" then "wondershare英文站" 
-            else "others" end as site_type
+            when url like "%wondershare.net%" then "WondershareCPC英语" 
+            else "Wondershare英文站" end as site_type
         from
-            (select url, wsid from log.wl_wondershare_com where day between "__DAY1__" and "__DAY2__" and (url like "%filmora-buy.html%" or url like "%buy-video-editor.html%" or url like "%checkout.html%") 
+            (select url, devid from log.wl_wondershare_com where day between "__DAY1__" and "__DAY2__" and (url like "%filmora-buy.html%" or url like "%buy-video-editor.html%" or url like "%checkout.html%") 
             union all
-            select url, wsid from log.wl_wondershare_jp where day between "__DAY1__" and "__DAY2__" and (url like "%filmora-buy.html%" or url like "%buy-video-editor.html%" or url like "%checkout.html%")
+            select url, devid from log.wl_wondershare_jp where day between "__DAY1__" and "__DAY2__" and (url like "%filmora-buy.html%" or url like "%buy-video-editor.html%" or url like "%checkout.html%")
             union all
-            select url, wsid from log.wl_wondershare_net where day between "__DAY1__" and "__DAY2__" and (url like "%filmora-buy.html%" or url like "%buy-video-editor.html%" or url like "%checkout.html%")
+            select url, devid from log.wl_wondershare_net where day between "__DAY1__" and "__DAY2__" and (url like "%filmora-buy.html%" or url like "%buy-video-editor.html%" or url like "%checkout.html%")
             ) x0 
         )m0
     group by site_type)tb0
     join
     (select
         site_type,
-        count(*) as generate_num,
+        count(distinct order_no) as generate_num,
         count(distinct if(status in ("10", "20"), order_no, null)) as succeed_num,
         count(distinct if(status="40", order_no, null)) as falied_num,
         count(distinct if(status in ("1", "50"),order_no,null)) as unpay_num
     from (select
             case when from_site="1" then "Wondershare英文站"
             when from_site="2" then "Wondershare法语"
-            when from_site="3" then "Wondershare葡萄牙语"
-            when from_site="4" then "Wondershare西班牙语"
-            when from_site="5" then "Wondershare德语"
-            when from_site="6" then "Wondershare日语"
-            when from_site="7" then "Wondershare意大利语" 
+            when from_site="3" then "Wondershare日语"
+            when from_site="4" then "Wondershare德语"
+            when from_site="5" then "Wondershare西班牙语"
+            when from_site="6" then "Wondershare葡萄牙语"
+            when from_site="7" then "Wondershare意大利语"
             when from_site="8" then "WondershareCPC英语" 
             else "others" end as site_type,
             status, order_no
         from dbsync.f_order_wx_order 
-        where origin!="2" and FROM_UNIXTIME(inputtime, "yyyy-MM-dd") between "__DAY1__" and "__DAY2__" and from_site in ("1","2","3","4","5","6","7","8")) x1
+        where origin!="2" and FROM_UNIXTIME(inputtime, "yyyy-MM-dd") between "__DAY1__" and "__DAY2__" and from_site in ("1","2","3","4","5","6","7","8") and  ver=91) x1
     group by site_type) tb1
 on tb0.site_type=tb1.site_type'''
 
-    sql_month_filmora = '''insert into table `tmp`.`shopping_cart_funnel` partition(stat_date="__DAY1__")
+    sql_month_filmora = '''insert into table `base`.`shopping_cart_funnel` partition(day="__DAY1__")
             select 
     concat("__DAY1__", "~", "__DAY2__") as show_date,
     "filmora" as produce,
@@ -531,51 +525,50 @@ on tb0.site_type=tb1.site_type'''
     from
     (select
         site_type,
-        count(if(url like "%filmora-buy.html%" or url like "%buy-video-editor.html%", wsid, null)) as plan_num,
-        count(distinct if(url like "%filmora-buy.html%" or url like "%buy-video-editor.html%", wsid, null)) as plan_user_num,
-        count(if(url like "%checkout.html%", wsid, null)) as checkout_num,
-        count(distinct if(url like "%checkout.html%", wsid, null)) as checkout_user_num
+        count(if(url like "%filmora-buy.html%" or url like "%buy-video-editor.html%", devid, null)) as plan_num,
+        count(distinct if(url like "%filmora-buy.html%" or url like "%buy-video-editor.html%", devid, null)) as plan_user_num,
+        count(if(url like "%checkout.html%", devid, null)) as checkout_num,
+        count(distinct if(url like "%checkout.html%", devid, null)) as checkout_user_num
     from 
         (SELECT
-            url, wsid,
+            url, devid,
             case when url like "%wondershare.com/fr%" then "Wondershare法语" 
-            when url like "%wondershare.com/jp%" then "Wondershare日语" 
+            when url like "%wondershare.jp%" then "Wondershare日语" 
             when url like "%wondershare.com/de%" then "Wondershare德语" 
             when url like "%wondershare.com/es%" then "Wondershare西班牙语" 
             when url like "%wondershare.com/pt%" then "Wondershare葡萄牙语" 
             when url like "%wondershare.com/it%" then "Wondershare意大利语" 
-            when url like "%wondershare.com/net%" then "WondershareCPC英语" 
-            when url like "%wondershare.com%" then "wondershare英文站" 
-            else "others" end as site_type
+            when url like "%wondershare.net%" then "WondershareCPC英语" 
+            else "Wondershare英文站" end as site_type
         from
-            (select url, wsid from log.wl_wondershare_com where day between "__DAY1__" and "__DAY2__" and (url like "%filmora-buy.html%" or url like "%buy-video-editor.html%" or url like "%checkout.html%") 
+            (select url, devid from log.wl_wondershare_com where day between "__DAY1__" and "__DAY2__" and (url like "%filmora-buy.html%" or url like "%buy-video-editor.html%" or url like "%checkout.html%") 
             union all
-            select url, wsid from log.wl_wondershare_jp where day between "__DAY1__" and "__DAY2__" and (url like "%filmora-buy.html%" or url like "%buy-video-editor.html%" or url like "%checkout.html%")
+            select url, devid from log.wl_wondershare_jp where day between "__DAY1__" and "__DAY2__" and (url like "%filmora-buy.html%" or url like "%buy-video-editor.html%" or url like "%checkout.html%")
             union all
-            select url, wsid from log.wl_wondershare_net where day between "__DAY1__" and "__DAY2__" and (url like "%filmora-buy.html%" or url like "%buy-video-editor.html%" or url like "%checkout.html%")
+            select url, devid from log.wl_wondershare_net where day between "__DAY1__" and "__DAY2__" and (url like "%filmora-buy.html%" or url like "%buy-video-editor.html%" or url like "%checkout.html%")
             ) x0 
         )m0
     group by site_type)tb0
     join
     (select
         site_type,
-        count(*) as generate_num,
+        count(distinct order_no) as generate_num,
         count(distinct if(status in ("10", "20"), order_no, null)) as succeed_num,
         count(distinct if(status="40", order_no, null)) as falied_num,
         count(distinct if(status in ("1", "50"),order_no,null)) as unpay_num
     from (select
-            case when from_site="1" then "Wondershare英文站"
+             case when from_site="1" then "Wondershare英文站"
             when from_site="2" then "Wondershare法语"
-            when from_site="3" then "Wondershare葡萄牙语"
-            when from_site="4" then "Wondershare西班牙语"
-            when from_site="5" then "Wondershare德语"
-            when from_site="6" then "Wondershare日语"
-            when from_site="7" then "Wondershare意大利语" 
+            when from_site="3" then "Wondershare日语"
+            when from_site="4" then "Wondershare德语"
+            when from_site="5" then "Wondershare西班牙语"
+            when from_site="6" then "Wondershare葡萄牙语"
+            when from_site="7" then "Wondershare意大利语"
             when from_site="8" then "WondershareCPC英语" 
             else "others" end as site_type,
             status, order_no
         from dbsync.f_order_wx_order 
-        where origin!="2" and FROM_UNIXTIME(inputtime, "yyyy-MM-dd") between "__DAY1__" and "__DAY2__" and from_site in ("1","2","3","4","5","6","7","8")) x1
+        where origin!="2" and FROM_UNIXTIME(inputtime, "yyyy-MM-dd") between "__DAY1__" and "__DAY2__" and from_site in ("1","2","3","4","5","6","7","8") and  ver=91) x1
     group by site_type) tb1
     on tb0.site_type=tb1.site_type'''
 
@@ -587,72 +580,52 @@ on tb0.site_type=tb1.site_type'''
         insert_to_hive(sql_query=sql_stocks, sql_session=sparksession)
         insert_to_hive(sql_query=sql_filmora, sql_session=sparksession)
 
-        sqlx = "select stat_date, show_date, produce, site_type, plan_num," \
-               " plan_user_num,checkout_num,checkout_user_num, generate_num," \
-               "succeed_num,falied_num, unpay_num " \
-               "from tmp.shopping_cart_funnel " \
-               "where stat_date='__DAY1__' and date_type='day'"
-
-        sqly = "select stat_date, show_date, produce, site_type, " \
-               "pay_succeed_rate, pay_convert_rate from " \
-               "tmp.shopping_cart_funnel " \
-               "where stat_date='__DAY1__' and date_type='day'"
+        sqlx = "select day as stat_date , show_date, product, site_type, plan_num, " \
+               "plan_user_num, checkout_num, checkout_user_num, generate_num, " \
+               "succeed_num,falied_num, unpay_num, pay_succeed_rate, " \
+               "pay_convert_rate " \
+               "from base.shopping_cart_funnel" \
+               " where day='__DAY1__' and date_type='day'"
 
         insert_into_mysql(sql_query=job_day(date=excute_date, moudle_sql=sqlx),
                           sql_session=sparksession,
-                          table="funnel_shopcart_number_day")
-
-        insert_into_mysql(sql_query=job_day(date=excute_date, moudle_sql=sqly),
-                          sql_session=sparksession,
-                          table="funnel_shopcart_rate_day")
+                          table="funnel_shopcart_day")
 
     if time_type == 'week':
-        sql_stocks = job_week(date=excute_date, moudle_sql=sql_week_filmstocks)
-        sql_filmora = job_week(date=excute_date, moudle_sql=sql_week_filmora)
+        sql_stocks = week(date=excute_date, moudle_sql=sql_week_filmstocks)
+        sql_filmora = week(date=excute_date, moudle_sql=sql_week_filmora)
         print("begin to insert tmp.shopping_cart_funnel table ")
         insert_to_hive(sql_query=sql_stocks, sql_session=sparksession)
         insert_to_hive(sql_query=sql_filmora, sql_session=sparksession)
 
-        sqlx = "select stat_date, show_date, produce, site_type, plan_num, " \
+        sqlx = "select day as stat_date, show_date, product, site_type, plan_num, " \
                "plan_user_num, checkout_num, checkout_user_num, generate_num, " \
-               "succeed_num,falied_num, unpay_num from tmp.shopping_cart_funnel" \
-               " where stat_date='__DAY1__' and date_type='week'"
+               "succeed_num,falied_num, unpay_num, pay_succeed_rate, " \
+               "pay_convert_rate " \
+               "from base.shopping_cart_funnel" \
+               " where day='__DAY1__' and date_type='week'"
 
-        sqly = "select stat_date, show_date, produce, site_type, " \
-               "pay_succeed_rate,pay_convert_rate " \
-               "from tmp.shopping_cart_funnel " \
-               "where stat_date='__DAY1__' and date_type='week'"
-        insert_into_mysql(sql_query=job_week(date=excute_date, moudle_sql=sqlx),
+        insert_into_mysql(sql_query=week(date=excute_date, moudle_sql=sqlx),
                           sql_session=sparksession,
-                          table="funnel_shopcart_number_week")
-
-        insert_into_mysql(sql_query=job_week(date=excute_date, moudle_sql=sqly),
-                          sql_session=sparksession,
-                          table="funnel_shopcart_rate_week")
+                          table="funnel_shopcart_week")
 
     if time_type == 'month':
-        sql_stocks = job_month(date=excute_date, moudle_sql=sql_month_filmstocks)
-        sql_filmora = job_month(date=excute_date, moudle_sql=sql_month_filmora)
+        sql_stocks = month(date=excute_date, moudle_sql=sql_month_filmstocks)
+        sql_filmora = month(date=excute_date, moudle_sql=sql_month_filmora)
         print("begin to insert tmp.shopping_cart_funnel table ")
         insert_to_hive(sql_query=sql_stocks, sql_session=sparksession)
         insert_to_hive(sql_query=sql_filmora, sql_session=sparksession)
 
-        sqlx = "select stat_date, show_date, produce, site_type, plan_num, " \
+        sqlx = "select day as stat_date, show_date, product, site_type, plan_num, " \
                "plan_user_num, checkout_num, checkout_user_num, generate_num, " \
-               "succeed_num,falied_num,unpay_num from tmp.shopping_cart_funnel " \
-               "where stat_date='__DAY1__' and date_type='month'"
+               "succeed_num,falied_num, unpay_num, pay_succeed_rate, " \
+               "pay_convert_rate " \
+               "from base.shopping_cart_funnel" \
+               " where day='__DAY1__' and date_type='month'"
 
-        sqly = "select stat_date, show_date, produce, site_type, " \
-               "pay_succeed_rate, pay_convert_rate " \
-               "from tmp.shopping_cart_funnel " \
-               "where stat_date='__DAY1__' and date_type='month'"
-        insert_into_mysql(sql_query=job_month(date=excute_date, moudle_sql=sqlx),
+        insert_into_mysql(sql_query=month(date=excute_date, moudle_sql=sqlx),
                           sql_session=sparksession,
-                          table="funnel_shopcart_number_month")
-
-        insert_into_mysql(sql_query=job_month(date=excute_date, moudle_sql=sqly),
-                          sql_session=sparksession,
-                          table="funnel_shopcart_rate_month")
+                          table="funnel_shopcart_month")
 
     sparksession.stop()
 

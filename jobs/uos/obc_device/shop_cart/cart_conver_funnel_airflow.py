@@ -1,63 +1,38 @@
-# -*- coding: utf-8 -*-
-"""
-
-此文件为airflow调度文件,主要是调度相关pyspark任务
-使用此文件时，需要修改如下内容：
-1  airflow_pyspark_template.py 修改为相关pyspark 任务的名称
-2   修改args中，相关的个人信息，包括owner,email
-3   根据任务时间类型选择相关的dag，同时注意修改相关的scheduler_interval,其格式参数可参考crontab
-4   修改相关task_id 为可读的名称，同时修改pyspark*.py的文件路径 和任务的时间类型
-5   假设此时任务为 airflow_uos_label.py ，dag_name: airflow_uos_label  task_id:insert 是按天执行，及每天执行昨天的数据，做相关操作。
-6   切换目录到hdp-0:/home/ws/airflow
-7   执行 source venv/bin/activate  &&  cd dags  &&  vim aiflow_uos_label.py 粘贴相关内容
-8   测试任务是否编写成功：使用命令格式如：  airflow test dag_name task_id date 针对该任务即为： airflow test airflow_uos_label insert 2019-04-02
-"""
-
-from datetime import timedelta
-
-import airflow
+import logging
 from airflow.models import DAG
+from datetime import datetime, timedelta
+from airflow.operators.bash_operator import BashOperator
+
+from airflow.operators.dummy_operator import DummyOperator
+from airflow.operators.python_operator import BranchPythonOperator
+from airflow.operators.python_operator import PythonOperator
+from airflow.operators.python_operator import ShortCircuitOperator
 from airflow.contrib.operators.ssh_operator import SSHOperator
 
+
 args = {
-    'owner': 'shiTao',
-    'start_date': airflow.utils.dates.days_ago(2),
-    'retries': 1,
-    'retry_delay': timedelta(minutes=10),
+    'owner': 'shitao',
+    #'start_date': airflow.utils.dates.days_ago(2),
+    'start_date': datetime(2018, 1, 1),
+    'retries': 3,
+    'retry_delay': timedelta(minutes=30),
     'email': ['shitao@wondershare.cn'],
     'email_on_failure': True,
     'email_on_retry': True,
 }
 
-# day 类型的任务 根据相应的类型，打开或者关闭相关的注释
 dag = DAG(
-    dag_id='cart_conver_funnel',
+    dag_id='shopping_cart',
     default_args=args,
-    schedule_interval='0 4 * * *',
+    schedule_interval='0 5 * * *',
     dagrun_timeout=timedelta(minutes=60),
 )
 
-# # week 类型的任务
-# dag = DAG(
-#     dag_id='airflow_pyspark_template_week',
-#     default_args=args,
-#     schedule_interval='50 6 * * 1',
-#     dagrun_timeout=timedelta(minutes=60),
-# )
-#
-#
-# # month 类型的任务 dag_id 需要修改
-# dag = DAG(
-#     dag_id='airflow_pyspark_template_week',
-#     default_args=args,
-#     schedule_interval='50 2 1 * *',
-#     dagrun_timeout=timedelta(minutes=60),
-# )
-# task_id也需要修改为相应的任务描述
-day_partition = SSHOperator(
+
+daily = SSHOperator(
     ssh_conn_id='ws@hdp-0',
-    task_id='day_partition',
-    command=" cd /usr/local/bigdata/jobtaskh0/pythonjob/pyspark_template/ && spark-submit \
+    task_id='daily',
+    command='cd /usr/local/bigdata/jobtaskh0/pythonjob/pyspark_template/ && spark-submit \
                 --num-executors 4 \
                 --executor-memory 4G \
                 --executor-cores 4 \
@@ -65,10 +40,89 @@ day_partition = SSHOperator(
                 --driver-cores 4 \
                 --jars /usr/hdp/3.0.1.0-187/spark2/jars/mysql-connector-java-5.1.47.jar \
                 --driver-class-path /usr/hdp/3.0.1.0-187/spark2/jars/mysql-connector-java-5.1.47.jar \
-                /usr/local/bigdata/jobtaskh0/pythonjob/uos/uid_label/cart_conver_funnel.py  \
+                /usr/local/bigdata/jobtaskh0/pythonjob/uos/cart/cart_funnel.py  \
                 day \
-                {{ ds_nodash }} ",
+                {{ ds }} ',
     dag=dag
 )
+
+weekly = SSHOperator(
+    ssh_conn_id='ws@hdp-0',
+    task_id='weekly',
+    command='cd /usr/local/bigdata/jobtaskh0/pythonjob/pyspark_template/ && spark-submit \
+                --num-executors 4 \
+                --executor-memory 4G \
+                --executor-cores 4 \
+                --driver-memory 4G \
+                --driver-cores 4 \
+                --jars /usr/hdp/3.0.1.0-187/spark2/jars/mysql-connector-java-5.1.47.jar \
+                --driver-class-path /usr/hdp/3.0.1.0-187/spark2/jars/mysql-connector-java-5.1.47.jar \
+                /usr/local/bigdata/jobtaskh0/pythonjob/uos/cart/cart_funnel.py  \
+                week \
+                {{ ds }} ',
+    dag=dag
+)
+
+monthly = SSHOperator(
+    ssh_conn_id='ws@hdp-0',
+    task_id='monthly',
+    command='cd /usr/local/bigdata/jobtaskh0/pythonjob/pyspark_template/ && spark-submit \
+                --num-executors 4 \
+                --executor-memory 4G \
+                --executor-cores 4 \
+                --driver-memory 4G \
+                --driver-cores 4 \
+                --jars /usr/hdp/3.0.1.0-187/spark2/jars/mysql-connector-java-5.1.47.jar \
+                --driver-class-path /usr/hdp/3.0.1.0-187/spark2/jars/mysql-connector-java-5.1.47.jar \
+                /usr/local/bigdata/jobtaskh0/pythonjob/uos/cart/cart_funnel.py  \
+                month \
+                {{ ds }} ',
+    dag=dag
+)
+
+
+def judge_if_1st_day_of_week(**kwargs):
+    print(kwargs.get('ds'))
+    ds = datetime.strptime(kwargs.get('ds'), "%Y-%M-%d")
+    day_of_week = ds.isoweekday()
+    #  Monday; 1, ...
+    if day_of_week == 1:
+        logging.warn('judge_if_1st_day_of_week: Monday')
+        return "weekly"
+    logging.warn('judge_if_1st_day_of_week: NOT Monday')
+    return "if_1st_day_of_month"
+
+def judge_if_1st_day_of_month(**kwargs):
+    print(kwargs.get('ds'))
+    if kwargs.get('ds').endswith('01'):
+        logging.warn('judge_if_1st_day_of_month: 01' + kwargs.get('ds'))
+        return True
+    logging.warn('judge_if_1st_day_of_week: Not 01' + kwargs.get('ds'))
+    return False
+
+if_1st_day_of_week = BranchPythonOperator(
+    task_id='if_1st_day_of_week',
+    python_callable=judge_if_1st_day_of_week,
+    provide_context=True,
+    trigger_rule="all_done",
+    dag=dag)
+
+if_1st_day_of_month = ShortCircuitOperator(
+    task_id='if_1st_day_of_month',
+    python_callable=judge_if_1st_day_of_month,
+    provide_context=True,
+    trigger_rule="all_done",
+    dag=dag)
+
+
+daily >> if_1st_day_of_week
+if_1st_day_of_week >> if_1st_day_of_month
+if_1st_day_of_week >> weekly
+weekly >> if_1st_day_of_month
+if_1st_day_of_month >> monthly
+
+
+
+
 if __name__ == "__main__":
     dag.cli()
